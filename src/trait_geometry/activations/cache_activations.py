@@ -72,13 +72,19 @@ def check_activation_dependencies(backend: str) -> dict[str, Any]:
     return results
 
 
-def progress_iter(items: list[Any], description: str):
+def progress_iter(items: list[Any], description: str, unit: str = "prompt"):
     try:
         from tqdm.auto import tqdm
 
-        return tqdm(items, desc=description, unit="prompt")
+        return tqdm(items, desc=description, unit=unit)
     except Exception:
         return items
+
+
+def batched(items: list[Any], batch_size: int) -> list[list[Any]]:
+    if batch_size < 1:
+        raise ValueError("batch_size must be >= 1")
+    return [items[index : index + batch_size] for index in range(0, len(items), batch_size)]
 
 
 def make_run_dirs(run_root: Path) -> dict[str, Path]:
@@ -177,6 +183,7 @@ def write_dry_run_artifacts(
     layers: list[int],
     backend: str,
     dependency_status: dict[str, Any],
+    batch_size: int,
 ) -> None:
     paths = make_run_dirs(run_root)
     now = datetime.now(timezone.utc).isoformat()
@@ -193,6 +200,7 @@ def write_dry_run_artifacts(
             "huggingface_model_name": model_config["huggingface_model_name"],
             "backend": backend,
             "layers": layers,
+            "batch_size": batch_size,
             "readout_policy": model_config["activation_extraction"]["first_layer_policy"]["readout_policy"],
             "planned_records": len(work_items),
             "run_root": str(run_root),
@@ -222,6 +230,7 @@ def write_dry_run_artifacts(
             "planned_records": len(work_items),
             "layers": layers,
             "backend": backend,
+            "batch_size": batch_size,
             "first_items": [asdict(item) for item in work_items[:5]],
         },
     )
@@ -244,6 +253,10 @@ def load_transformer_lens_model(model_config: dict[str, Any]):
     for kwargs in load_attempts:
         try:
             model = HookedTransformer.from_pretrained(model_name, device=device, **kwargs)
+            if getattr(model, "tokenizer", None) is not None:
+                if model.tokenizer.pad_token_id is None:
+                    model.tokenizer.pad_token = model.tokenizer.eos_token
+                model.tokenizer.padding_side = "right"
             model.eval()
             return model
         except TypeError as exc:
@@ -319,6 +332,92 @@ def cache_one_transformer_lens(
     }
 
 
+def to_tokens_right_padded(model: Any, texts: list[str]):
+    try:
+        return model.to_tokens(texts, prepend_bos=True, padding_side="right")
+    except TypeError:
+        if getattr(model, "tokenizer", None) is not None:
+            model.tokenizer.padding_side = "right"
+        return model.to_tokens(texts, prepend_bos=True)
+
+
+def cache_batch_transformer_lens(
+    model: Any,
+    items: list[ActivationWorkItem],
+    layers: list[int],
+    activation_paths: list[Path],
+) -> list[dict[str, Any]]:
+    import torch
+
+    if not items:
+        return []
+    if len(items) != len(activation_paths):
+        raise ValueError("items and activation_paths must have the same length")
+
+    full_texts = [item.full_prompt + item.completion for item in items]
+    prompt_lens: list[int] = []
+    full_lens: list[int] = []
+    for item, full_text in zip(items, full_texts):
+        prompt_tokens = model.to_tokens(item.full_prompt, prepend_bos=True)
+        full_tokens = model.to_tokens(full_text, prepend_bos=True)
+        prompt_len = int(prompt_tokens.shape[-1])
+        full_len = int(full_tokens.shape[-1])
+        if full_len <= prompt_len:
+            raise ValueError(f"no response tokens detected for prompt_id={item.prompt_id}")
+        prompt_lens.append(prompt_len)
+        full_lens.append(full_len)
+
+    names = [f"blocks.{layer}.hook_resid_post" for layer in layers]
+    name_set = set(names)
+    full_tokens_batch = to_tokens_right_padded(model, full_texts)
+    with torch.no_grad():
+        _, cache = model.run_with_cache(
+            full_tokens_batch,
+            names_filter=lambda name: name in name_set,
+            remove_batch_dim=False,
+        )
+
+    index_records: list[dict[str, Any]] = []
+    for row_idx, (item, activation_path, prompt_len, full_len) in enumerate(
+        zip(items, activation_paths, prompt_lens, full_lens)
+    ):
+        pooled: dict[int, Any] = {}
+        for layer, name in zip(layers, names):
+            resid = cache[name][row_idx, prompt_len:full_len, :].detach().cpu()
+            pooled[layer] = resid.mean(dim=0)
+
+        payload = {
+            "prompt_id": item.prompt_id,
+            "role_id": item.role_id,
+            "condition": item.condition,
+            "scenario_id": item.scenario_id,
+            "layers": layers,
+            "readout_policy": "response_token_mean",
+            "prompt_token_count": prompt_len,
+            "full_token_count": full_len,
+            "response_token_count": full_len - prompt_len,
+            "metadata": item.metadata,
+            "pooled_resid_post": pooled,
+        }
+        activation_path.parent.mkdir(parents=True, exist_ok=True)
+        torch.save(payload, activation_path)
+        index_records.append(
+            {
+                "prompt_id": item.prompt_id,
+                "activation_path": str(activation_path),
+                "layers": layers,
+                "readout_policy": "response_token_mean",
+                "prompt_token_count": prompt_len,
+                "full_token_count": full_len,
+                "response_token_count": full_len - prompt_len,
+                "role_id": item.role_id,
+                "condition": item.condition,
+                "scenario_id": item.scenario_id,
+            }
+        )
+    return index_records
+
+
 def write_initial_artifacts(
     run_root: Path,
     generations_jsonl: Path,
@@ -328,6 +427,7 @@ def write_initial_artifacts(
     layers: list[int],
     backend: str,
     dependency_status: dict[str, Any],
+    batch_size: int,
 ) -> dict[str, Path]:
     paths = make_run_dirs(run_root)
     now = datetime.now(timezone.utc).isoformat()
@@ -346,6 +446,7 @@ def write_initial_artifacts(
                 "huggingface_model_name": model_config["huggingface_model_name"],
                 "backend": backend,
                 "layers": layers,
+                "batch_size": batch_size,
                 "readout_policy": model_config["activation_extraction"]["first_layer_policy"]["readout_policy"],
                 "planned_records": len(work_items),
                 "run_root": str(run_root),
@@ -386,6 +487,7 @@ def run_activation_cache(
     backend: str,
     dependency_status: dict[str, Any],
     save_every: int,
+    batch_size: int,
 ) -> dict[str, Any]:
     if backend != "transformer_lens":
         raise NotImplementedError("Only transformer_lens backend is implemented")
@@ -399,6 +501,7 @@ def run_activation_cache(
         layers,
         backend,
         dependency_status,
+        batch_size,
     )
     index_path = paths["results"] / "activation_index.jsonl"
     progress_path = paths["checkpoints"] / "activation_progress.json"
@@ -412,17 +515,19 @@ def run_activation_cache(
 
     append_log(log_path, f"loading TransformerLens model {model_config['huggingface_model_name']}")
     model = load_transformer_lens_model(model_config)
-    append_log(log_path, f"model loaded; remaining records={len(remaining)}")
+    append_log(log_path, f"model loaded; remaining records={len(remaining)} batch_size={batch_size}")
 
     cached_this_run = 0
-    for item in progress_iter(remaining, "caching activations"):
+    last_checkpoint_count = 0
+    for batch in progress_iter(batched(remaining, batch_size), "caching activations", unit="batch"):
         try:
-            act_path = paths["activations"] / artifact_name(item.prompt_id)
-            index_record = cache_one_transformer_lens(model, item, layers, act_path)
-            append_jsonl(index_path, [index_record])
-            completed.add(item.prompt_id)
-            cached_this_run += 1
+            activation_paths = [paths["activations"] / artifact_name(item.prompt_id) for item in batch]
+            index_records = cache_batch_transformer_lens(model, batch, layers, activation_paths)
+            append_jsonl(index_path, index_records)
+            completed.update(item.prompt_id for item in batch)
+            cached_this_run += len(batch)
         except Exception as exc:
+            failed_ids = [item.prompt_id for item in batch]
             write_json(
                 status_path,
                 {
@@ -431,12 +536,13 @@ def run_activation_cache(
                     "completed_records": len(completed),
                     "planned_records": len(work_items),
                     "error": f"{type(exc).__name__}: {exc}",
+                    "failed_prompt_ids": failed_ids,
                 },
             )
-            append_log(log_path, f"failed on prompt_id={item.prompt_id}: {type(exc).__name__}: {exc}")
+            append_log(log_path, f"failed on prompt_ids={failed_ids}: {type(exc).__name__}: {exc}")
             raise
 
-        if cached_this_run % save_every == 0:
+        if cached_this_run - last_checkpoint_count >= save_every:
             write_json(
                 progress_path,
                 {
@@ -455,6 +561,7 @@ def run_activation_cache(
                 },
             )
             append_log(log_path, f"checkpoint saved completed={len(completed)}")
+            last_checkpoint_count = cached_this_run
 
     write_json(
         progress_path,
@@ -480,6 +587,7 @@ def run_activation_cache(
         "planned_records": len(work_items),
         "completed_records": len(completed),
         "cached_this_run": cached_this_run,
+        "batch_size": batch_size,
         "activation_index": str(index_path),
     }
 
@@ -493,6 +601,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--layers", type=int, nargs="+", default=None)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--save-every", type=int, default=10)
+    parser.add_argument("--batch-size", type=int, default=8)
     parser.add_argument("--dry-run", action="store_true")
     return parser
 
@@ -502,6 +611,8 @@ def main() -> int:
     model_config = load_yaml(args.model_config)
     layer_policy = model_config["activation_extraction"]["first_layer_policy"]
     layers = args.layers if args.layers is not None else [int(layer) for layer in layer_policy["layers"]]
+    if args.batch_size < 1:
+        raise ValueError("--batch-size must be >= 1")
     generation_records = load_jsonl(args.generations_jsonl, limit=args.limit)
     work_items = build_work_items(generation_records)
     dependency_status = check_activation_dependencies(args.backend)
@@ -516,6 +627,7 @@ def main() -> int:
             layers=layers,
             backend=args.backend,
             dependency_status=dependency_status,
+            batch_size=args.batch_size,
         )
         print(
             json.dumps(
@@ -525,6 +637,7 @@ def main() -> int:
                     "planned_records": len(work_items),
                     "layers": layers,
                     "backend": args.backend,
+                    "batch_size": args.batch_size,
                     "dependencies_ready": dependency_status["ready"],
                 },
                 indent=2,
@@ -558,6 +671,7 @@ def main() -> int:
         backend=args.backend,
         dependency_status=dependency_status,
         save_every=args.save_every,
+        batch_size=args.batch_size,
     )
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0

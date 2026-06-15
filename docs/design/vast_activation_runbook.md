@@ -19,6 +19,7 @@ Layer policy:
 ```text
 layer 8 only
 readout: response_token_mean
+default batch size: 8
 ```
 
 Reason:
@@ -59,6 +60,7 @@ python3 scripts/activations/cache_activations.py \
   --model-config configs/models/llama_3_2_1b_instruct.yaml \
   --run-root artifacts/runs/trait_geometry_pilot_v0/llama_3_2_1b_instruct/warmth_coldness/primary_roles/activations/20260614T000000Z-test \
   --limit 8 \
+  --batch-size 8 \
   --save-every 2
 ```
 
@@ -82,8 +84,12 @@ python3 scripts/activations/cache_activations.py \
   --generations-jsonl artifacts/runs/trait_geometry_pilot_v0/llama_3_2_1b_instruct/warmth_coldness/primary_roles/generation/20260614T000000Z-full/results/generations.jsonl \
   --model-config configs/models/llama_3_2_1b_instruct.yaml \
   --run-root artifacts/runs/trait_geometry_pilot_v0/llama_3_2_1b_instruct/warmth_coldness/primary_roles/activations/20260614T000000Z-full \
+  --batch-size 8 \
   --save-every 10
 ```
+
+If the GPU runs out of memory, rerun with the same `--run-root` and a smaller
+`--batch-size`; completed activation artifacts are skipped.
 
 ## Resume Behavior
 

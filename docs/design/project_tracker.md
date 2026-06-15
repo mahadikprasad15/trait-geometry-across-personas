@@ -22,7 +22,7 @@ Status labels:
 | Warmth prompt spec | in_progress | Smoke-run scenario spec drafted, revised, and YAML-validated. | Manual quality audit for role-specific confounds. |
 | Prompt expansion | done | Warmth/coldness JSONL grid and manifest generated. | Continue sample inspection before generation. |
 | Generation | in_progress | `GenerationRunner` includes transformers generation, resume, dry-run artifacts, dependency checks, tqdm progress, and real batched generation with default batch size 8. Warmth/coldness has been run on Vast. | Use batch-8 runner for remaining trait grids; lower `--batch-size` only if GPU memory fails. |
-| Activation cache | in_progress | `ActivationCacheBuilder` exists with TransformerLens backend, dry-run, resume, and middle-layer config; not locally executed. | Run tiny activation test on Vast after generation. |
+| Activation cache | in_progress | `ActivationCacheBuilder` exists with TransformerLens backend, dry-run, resume, middle-layer config, tqdm progress, and batched caching with default batch size 8. | Use batched activation caching for remaining trait grids; lower `--batch-size` only if GPU memory fails. |
 | Vectors/rulers | in_progress | `VectorBuilder` and `RulerBuilder` exist with dry-run/dependency checks; vector condition means retain mention controls; primary and role-free ruler methods are configured. | Run after Vast activation output exists. |
 | Validation gates | in_progress | Salience gate runner exists for scalar direction, axis-alignment, and mention-control checks; not run on real scalars yet. | Run after scalar decomposition exists. |
 | HF artifact sync | in_progress | Separate Hugging Face sync runner/config/runbook exist; not uploaded from Vast yet. | Dry-run sync after first Vast stage completes. |
@@ -174,7 +174,7 @@ flowchart TD
 |---|---:|---|---|---|---|
 | `PromptGridBuilder` | done | `scripts/prompts/build_prompt_grid.py` | role config, trait config, prompt schema, scenario spec | expanded JSONL, manifest | current configs/spec |
 | `BalancedPromptGridSampler` | done | `scripts/prompts/sample_balanced_grid.py` | expanded JSONL, roles, conditions, variant | balanced JSONL, manifest | expanded prompt grid |
-| `ActivationCacheBuilder` | in_progress | `scripts/activations/cache_activations.py` | generations JSONL, model config, layer policy | activation artifacts and index | generation output, model config |
+| `ActivationCacheBuilder` | in_progress | `scripts/activations/cache_activations.py` | generations JSONL, model config, layer policy, optional `--batch-size` | activation artifacts and index | generation output, model config |
 | `VectorBuilder` | in_progress | `scripts/analysis/build_vectors.py` | activation index, activation `.pt` artifacts | condition means including mention controls, role vectors, vector manifest | activation cache |
 | `RulerBuilder` | in_progress | `scripts/analysis/build_rulers.py` | role vectors, experiment config | unit ruler, ruler manifest | vector builder |
 | `ScalarDecompositionBuilder` | in_progress | `scripts/analysis/build_scalar_decomposition.py` | condition means, role vectors, ruler | scalar JSON/CSV, scalar manifest | vectors/rulers |
