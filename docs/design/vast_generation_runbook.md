@@ -107,6 +107,29 @@ python3 scripts/generation/run_generation.py \
   --save-every 10
 ```
 
+## Additional Trait Grids
+
+Available full 480-record prompt grids:
+
+```text
+data/prompts/warmth_coldness_smoke_v001.jsonl
+data/prompts/sincerity_manipulativeness_smoke_v001.jsonl
+```
+
+Template for a full-trait generation run:
+
+```bash
+export TRAIT_AXIS="sincerity_manipulativeness"
+export RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-${TRAIT_AXIS}-full"
+export BASE="artifacts/runs/trait_geometry_pilot_v0/llama_3_2_1b_instruct/${TRAIT_AXIS}/primary_roles"
+
+python3 scripts/generation/run_generation.py \
+  --prompt-jsonl "data/prompts/${TRAIT_AXIS}_smoke_v001.jsonl" \
+  --model-config configs/models/llama_3_2_1b_instruct.yaml \
+  --run-root "$BASE/generation/$RUN_ID" \
+  --save-every 10
+```
+
 ## Resume Behavior
 
 The runner reads existing `results/generations.jsonl` and `checkpoints/progress.json`, then skips completed `prompt_id`s.

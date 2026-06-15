@@ -133,10 +133,10 @@ flowchart TD
 |---|---:|---|---|
 | `configs/personas/core_roles.yaml` | done | Sourced Assistant Axis role instruction variants and role sets. | `PromptGridBuilder`, role-adherence judging later |
 | `configs/traits/warmth_coldness.yaml` | done | Warmth/coldness axis definition, poles, markers, construction rules. | Prompt specs, judge rubrics, vector/ruler logic |
-| `configs/traits/sincerity_manipulativeness.yaml` | done | Sincerity/manipulativeness axis config. | Pilot expansion later |
-| `configs/traits/caution_recklessness.yaml` | done | Caution/recklessness axis config. | Pilot expansion later |
-| `configs/traits/curiosity_closed_mindedness.yaml` | done | Curiosity/closed-mindedness axis config. | Pilot expansion later |
-| `configs/traits/skepticism_gullibility.yaml` | done | Skepticism/gullibility axis config with source-research TODO. | Pilot expansion later |
+| `configs/traits/sincerity_manipulativeness.yaml` | done | Sincerity/manipulativeness axis config with lexical leakage terms. | Prompt specs, judge rubrics, vector/ruler logic |
+| `configs/traits/caution_recklessness.yaml` | done | Caution/recklessness axis config with lexical leakage terms. | Pilot expansion later |
+| `configs/traits/curiosity_closed_mindedness.yaml` | done | Curiosity/closed-mindedness axis config with lexical leakage terms. | Pilot expansion later |
+| `configs/traits/skepticism_gullibility.yaml` | done | Skepticism/gullibility axis config with lexical leakage terms and source-research TODO. | Pilot expansion later |
 | `configs/schemas/prompt_record.schema.yaml` | done | Expanded prompt-record schema. | `PromptGridBuilder`, validation |
 | `configs/experiments/pilot_v0.yaml` | done | Pilot experiment wiring and artifact policy. | All first-stage builders/runners |
 | `configs/models/llama_3_2_1b_instruct.yaml` | done | First smoke-run model config and tooling defaults. | `GenerationRunner`, `ActivationCacheBuilder` later |
@@ -151,6 +151,9 @@ flowchart TD
 | `data/prompts/warmth_coldness_smoke_v001_manifest.json` | done | Prompt-grid manifest with counts, hashes, source configs, and validation results. | Rebuild if source configs/spec change. |
 | `data/prompts/warmth_coldness_balanced_smoke_v001.jsonl` | done | Balanced 16-record smoke grid: 4 primary roles x 4 conditions x `iv01`. | Use for primary-ruler Vast smoke test. |
 | `data/prompts/warmth_coldness_balanced_smoke_v001_manifest.json` | done | Balanced smoke-grid manifest; validation passed. | Rebuild if sampler policy changes. |
+| `data/prompt_specs/sincerity_manipulativeness_smoke_v001.yaml` | done | Full 24-scenario sincerity/manipulativeness spec. | Use for multi-trait Vast generation. |
+| `data/prompts/sincerity_manipulativeness_smoke_v001.jsonl` | done | Expanded sincerity/manipulativeness grid; 480 records, validation passed. | Generate on Vast after warmth run sync. |
+| `data/prompts/sincerity_manipulativeness_smoke_v001_manifest.json` | done | Prompt-grid manifest for sincerity/manipulativeness. | Rebuild if source spec changes. |
 | `data/prompts/warmth_coldness_role_free_v001.jsonl` | done | Generic role-free prompt grid; 24 records. | Run generation/activation separately for role-free ruler. |
 | `data/prompts/warmth_coldness_role_free_v001_manifest.json` | done | Role-free prompt-grid manifest; validation passed. | Rebuild if role-free spec changes. |
 

@@ -40,7 +40,12 @@ construction:
     - positive_minus_neutral
     - negative_minus_neutral
     - positive_minus_negative
+  lexical_leakage_terms:
+    - skepticism
+    - skeptic
+    - skeptical
+    - gullibility
+    - gullible
   trait_word_policy:
     scenario_induced: avoid pole labels and close synonyms when feasible
     mention_without_possession: may discuss skepticism/gullibility as topic only
-
