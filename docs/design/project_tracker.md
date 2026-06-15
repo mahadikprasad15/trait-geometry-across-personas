@@ -21,7 +21,7 @@ Status labels:
 | Pilot config | done | `pilot_v0.yaml` exists. | Add model/layer config later. |
 | Warmth prompt spec | in_progress | Smoke-run scenario spec drafted, revised, and YAML-validated. | Manual quality audit for role-specific confounds. |
 | Prompt expansion | done | Warmth/coldness JSONL grid and manifest generated. | Continue sample inspection before generation. |
-| Generation | in_progress | `GenerationRunner` includes actual transformers generation, resume, dry-run artifacts, and dependency checks; not locally run. | Run tiny generation test on Vast. |
+| Generation | in_progress | `GenerationRunner` includes transformers generation, resume, dry-run artifacts, dependency checks, tqdm progress, and real batched generation with default batch size 8. Warmth/coldness has been run on Vast. | Use batch-8 runner for remaining trait grids; lower `--batch-size` only if GPU memory fails. |
 | Activation cache | in_progress | `ActivationCacheBuilder` exists with TransformerLens backend, dry-run, resume, and middle-layer config; not locally executed. | Run tiny activation test on Vast after generation. |
 | Vectors/rulers | in_progress | `VectorBuilder` and `RulerBuilder` exist with dry-run/dependency checks; vector condition means retain mention controls; primary and role-free ruler methods are configured. | Run after Vast activation output exists. |
 | Validation gates | in_progress | Salience gate runner exists for scalar direction, axis-alignment, and mention-control checks; not run on real scalars yet. | Run after scalar decomposition exists. |
@@ -139,7 +139,7 @@ flowchart TD
 | `configs/traits/skepticism_gullibility.yaml` | done | Skepticism/gullibility axis config with lexical leakage terms and source-research TODO. | Pilot expansion later |
 | `configs/schemas/prompt_record.schema.yaml` | done | Expanded prompt-record schema. | `PromptGridBuilder`, validation |
 | `configs/experiments/pilot_v0.yaml` | done | Pilot experiment wiring and artifact policy. | All first-stage builders/runners |
-| `configs/models/llama_3_2_1b_instruct.yaml` | done | First smoke-run model config and tooling defaults. | `GenerationRunner`, `ActivationCacheBuilder` later |
+| `configs/models/llama_3_2_1b_instruct.yaml` | done | First smoke-run model config and tooling defaults, including generation batch size 8. | `GenerationRunner`, `ActivationCacheBuilder` later |
 | `configs/storage/hf_sync.yaml` | done | Hugging Face dataset repo defaults and upload include/exclude policy. | `HfArtifactSyncRunner` |
 
 ## Prompt Data Inventory
@@ -181,7 +181,7 @@ flowchart TD
 
 | Component | Status | Script | Inputs | Outputs | Depends on |
 |---|---:|---|---|---|---|
-| `GenerationRunner` | in_progress | `scripts/generation/run_generation.py` | prompt JSONL, model config | dry-run artifacts locally; `results/generations.jsonl` on Vast | prompt grid, model config |
+| `GenerationRunner` | in_progress | `scripts/generation/run_generation.py` | prompt JSONL, model config, optional `--batch-size` | dry-run artifacts locally; `results/generations.jsonl` on Vast | prompt grid, model config |
 | `HfArtifactSyncRunner` | in_progress | `scripts/artifacts/sync_to_hf.py` | local artifact subtree, sync config | HF dataset commit, local sync manifest | completed local artifacts |
 | `TraitJudgeRunner` | blocked | `scripts/analysis/run_trait_judge.py` | completions, trait rubric | structured ratings JSONL | generation, judge rubric |
 | `ConstantSteeringRunner` | later | `scripts/analysis/run_constant_steering.py` | model, ruler, prompts, alpha ladder | steered completions and scores | validated ruler |
@@ -207,7 +207,7 @@ flowchart TD
 | Prompt-grid manifest | done | `PromptGridBuilder` | audit, reports | `data/prompts/warmth_coldness_smoke_v001_manifest.json`, validation passed. |
 | Run manifest | in_progress | all runners | all downstream stages | Dry-run generation manifest exists. |
 | Status/progress files | in_progress | all runners | resume logic | Dry-run generation status/progress exists. |
-| Generations JSONL | blocked | `GenerationRunner` | judging, optional activation cache | Actual generation logic exists; needs model-enabled Vast run. |
+| Generations JSONL | in_progress | `GenerationRunner` | judging, optional activation cache | Warmth/coldness full run completed on Vast; remaining trait grids still need generation. |
 | Activations | blocked | `ActivationCacheBuilder` | vectors/rulers | Logic exists; needs generation output and model-enabled Vast run. |
 | Role vectors | blocked | `VectorBuilder` | rulers, geometry | Logic exists; needs real activation artifacts and torch. |
 | Benchmark rulers | blocked | `RulerBuilder` | scalar/validation/steering | Logic exists for `primary_roles_mean` and `role_free_mean`; needs real role vectors and torch. |

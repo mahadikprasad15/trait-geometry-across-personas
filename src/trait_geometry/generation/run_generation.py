@@ -63,13 +63,19 @@ def check_generation_dependencies() -> dict[str, Any]:
     return results
 
 
-def progress_iter(items: list[Any], description: str):
+def progress_iter(items: list[Any], description: str, unit: str = "prompt"):
     try:
         from tqdm.auto import tqdm
 
-        return tqdm(items, desc=description, unit="prompt")
+        return tqdm(items, desc=description, unit=unit)
     except Exception:
         return items
+
+
+def batched(items: list[Any], batch_size: int) -> list[list[Any]]:
+    if batch_size < 1:
+        raise ValueError("batch_size must be >= 1")
+    return [items[index : index + batch_size] for index in range(0, len(items), batch_size)]
 
 
 def build_work_items(prompt_records: list[dict[str, Any]]) -> list[GenerationWorkItem]:
@@ -154,6 +160,15 @@ def append_jsonl(path: Path, records: list[dict[str, Any]]) -> None:
     with path.open("a", encoding="utf-8") as f:
         for record in records:
             f.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
+
+
+def model_config_with_generation_overrides(model_config: dict[str, Any], batch_size: int) -> dict[str, Any]:
+    if batch_size < 1:
+        raise ValueError("batch_size must be >= 1")
+    effective_config = dict(model_config)
+    effective_config["generation"] = dict(model_config["generation"])
+    effective_config["generation"]["batch_size"] = batch_size
+    return effective_config
 
 
 def write_dry_run_artifacts(
@@ -269,6 +284,7 @@ def load_transformers_model(model_config: dict[str, Any]):
     tokenizer = AutoTokenizer.from_pretrained(model_name, token=token)
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "left"
 
     device_map = "auto" if torch.cuda.is_available() else None
     torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
@@ -329,6 +345,58 @@ def generate_one(
     }
 
 
+def generate_batch(
+    tokenizer: Any,
+    model: Any,
+    items: list[GenerationWorkItem],
+    generation_config: dict[str, Any],
+) -> list[dict[str, Any]]:
+    import torch
+
+    if not items:
+        return []
+
+    encoded = tokenizer([item.full_prompt for item in items], return_tensors="pt", padding=True)
+    model_device = next(model.parameters()).device
+    encoded = {key: value.to(model_device) for key, value in encoded.items()}
+    input_width = int(encoded["input_ids"].shape[-1])
+
+    do_sample = bool(generation_config.get("do_sample", False))
+    temperature = float(generation_config.get("temperature", 0.0))
+    generate_kwargs = {
+        "max_new_tokens": int(generation_config.get("max_new_tokens", 192)),
+        "do_sample": do_sample,
+        "pad_token_id": tokenizer.pad_token_id,
+        "eos_token_id": tokenizer.eos_token_id,
+    }
+    if do_sample:
+        generate_kwargs["temperature"] = temperature
+
+    with torch.no_grad():
+        outputs = model.generate(**encoded, **generate_kwargs)
+
+    generated_at = datetime.now(timezone.utc).isoformat()
+    records: list[dict[str, Any]] = []
+    if len(outputs) != len(items):
+        raise RuntimeError(f"model returned {len(outputs)} outputs for {len(items)} prompts")
+    for item, output_ids in zip(items, outputs):
+        completion = generated_text_from_output(tokenizer, output_ids, input_width)
+        records.append(
+            {
+                "prompt_id": item.prompt_id,
+                "role_id": item.role_id,
+                "condition": item.condition,
+                "scenario_id": item.scenario_id,
+                "metadata": item.metadata,
+                "full_prompt": item.full_prompt,
+                "completion": completion,
+                "generation_config": generation_config,
+                "generated_at_utc": generated_at,
+            }
+        )
+    return records
+
+
 def run_generation(
     run_root: Path,
     prompt_jsonl: Path,
@@ -337,7 +405,9 @@ def run_generation(
     work_items: list[GenerationWorkItem],
     dependency_status: dict[str, Any],
     save_every: int,
+    batch_size: int,
 ) -> dict[str, Any]:
+    model_config = model_config_with_generation_overrides(model_config, batch_size)
     paths = write_initial_run_artifacts(
         run_root=run_root,
         prompt_jsonl=prompt_jsonl,
@@ -356,18 +426,22 @@ def run_generation(
     completed.update(str(prompt_id) for prompt_id in progress.get("completed_prompt_ids", []))
     remaining = [item for item in work_items if item.prompt_id not in completed]
 
+    generation_config = model_config["generation"]
+
     append_log(log_path, f"loading model {model_config['huggingface_model_name']}")
     tokenizer, model = load_transformers_model(model_config)
-    append_log(log_path, f"model loaded; remaining records={len(remaining)}")
+    append_log(log_path, f"model loaded; remaining records={len(remaining)} batch_size={batch_size}")
 
     generated_count = 0
-    for item in progress_iter(remaining, "generating"):
+    last_checkpoint_count = 0
+    for batch in progress_iter(batched(remaining, batch_size), "generating", unit="batch"):
         try:
-            record = generate_one(tokenizer, model, item, model_config["generation"])
-            append_jsonl(results_path, [record])
-            completed.add(item.prompt_id)
-            generated_count += 1
+            records = generate_batch(tokenizer, model, batch, generation_config)
+            append_jsonl(results_path, records)
+            completed.update(item.prompt_id for item in batch)
+            generated_count += len(batch)
         except Exception as exc:
+            failed_ids = [item.prompt_id for item in batch]
             write_json(
                 status_path,
                 {
@@ -376,12 +450,13 @@ def run_generation(
                     "completed_records": len(completed),
                     "planned_records": len(work_items),
                     "error": f"{type(exc).__name__}: {exc}",
+                    "failed_prompt_ids": failed_ids,
                 },
             )
-            append_log(log_path, f"failed on prompt_id={item.prompt_id}: {type(exc).__name__}: {exc}")
+            append_log(log_path, f"failed on prompt_ids={failed_ids}: {type(exc).__name__}: {exc}")
             raise
 
-        if generated_count % save_every == 0:
+        if generated_count - last_checkpoint_count >= save_every:
             write_json(
                 progress_path,
                 {
@@ -400,6 +475,7 @@ def run_generation(
                 },
             )
             append_log(log_path, f"checkpoint saved completed={len(completed)}")
+            last_checkpoint_count = generated_count
 
     write_json(
         progress_path,
@@ -425,6 +501,7 @@ def run_generation(
         "planned_records": len(work_items),
         "completed_records": len(completed),
         "generated_this_run": generated_count,
+        "batch_size": batch_size,
         "output_generations": str(results_path),
     }
 
@@ -436,6 +513,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--run-root", type=Path, required=True)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--save-every", type=int, default=10)
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=None,
+        help="Generation batch size. Defaults to generation.batch_size in the model config.",
+    )
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -450,6 +533,8 @@ def main() -> int:
     prompt_records = load_prompt_jsonl(args.prompt_jsonl, limit=args.limit)
     work_items = build_work_items(prompt_records)
     dependency_status = check_generation_dependencies()
+    batch_size = int(args.batch_size or model_config.get("generation", {}).get("batch_size", 1))
+    model_config = model_config_with_generation_overrides(model_config, batch_size)
 
     if args.dry_run:
         write_dry_run_artifacts(
@@ -496,6 +581,7 @@ def main() -> int:
         work_items=work_items,
         dependency_status=dependency_status,
         save_every=args.save_every,
+        batch_size=batch_size,
     )
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0

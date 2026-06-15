@@ -32,7 +32,7 @@ generation:
   max_new_tokens: 192
   temperature: 0.0
   do_sample: false
-  batch_size: 1
+  batch_size: 8
 
 activation_extraction:
   preferred_backend: transformer_lens

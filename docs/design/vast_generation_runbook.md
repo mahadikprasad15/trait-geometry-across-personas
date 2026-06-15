@@ -14,6 +14,14 @@ Config:
 configs/models/llama_3_2_1b_instruct.yaml
 ```
 
+Default generation batch size:
+
+```text
+8
+```
+
+Override with `--batch-size <n>` if the GPU runs out of memory.
+
 Prompt grid:
 
 ```text
@@ -92,6 +100,7 @@ python3 scripts/generation/run_generation.py \
   --prompt-jsonl data/prompts/warmth_coldness_balanced_smoke_v001.jsonl \
   --model-config configs/models/llama_3_2_1b_instruct.yaml \
   --run-root "$BASE/generation/$RUN_ID" \
+  --batch-size 8 \
   --save-every 4
 ```
 
@@ -104,6 +113,7 @@ python3 scripts/generation/run_generation.py \
   --prompt-jsonl data/prompts/warmth_coldness_smoke_v001.jsonl \
   --model-config configs/models/llama_3_2_1b_instruct.yaml \
   --run-root artifacts/runs/trait_geometry_pilot_v0/llama_3_2_1b_instruct/warmth_coldness/primary_roles/generation/20260614T000000Z-full \
+  --batch-size 8 \
   --save-every 10
 ```
 
@@ -129,6 +139,7 @@ python3 scripts/generation/run_generation.py \
   --prompt-jsonl "data/prompts/${TRAIT_AXIS}_smoke_v001.jsonl" \
   --model-config configs/models/llama_3_2_1b_instruct.yaml \
   --run-root "$BASE/generation/$RUN_ID" \
+  --batch-size 8 \
   --save-every 10
 ```
 
