@@ -239,7 +239,11 @@ def load_transformer_lens_model(model_config: dict[str, Any]):
             return model
         except TypeError as exc:
             message = str(exc)
-            if "unexpected keyword argument" not in message:
+            retryable_arg_error = (
+                "unexpected keyword argument" in message
+                or "multiple values for keyword argument" in message
+            )
+            if not retryable_arg_error:
                 raise
             last_type_error = exc
             continue
