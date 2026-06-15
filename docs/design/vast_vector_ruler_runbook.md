@@ -198,7 +198,7 @@ The gate checks:
 
 - positive elicitation shifts positively along the ruler,
 - negative elicitation shifts negatively along the ruler,
-- mention-only controls are not too large relative to elicitation shifts,
+- mention-only controls are not too large relative to the larger positive/negative elicitation shift,
 - each role axis is at least weakly aligned with the ruler.
 
 ## Sync After Analysis

@@ -42,6 +42,13 @@ def safe_abs_ratio(numerator: float | None, denominator: float | None) -> float 
     return abs(numerator) / abs(denominator)
 
 
+def max_abs_value(values: list[float | None]) -> float | None:
+    present = [abs(value) for value in values if value is not None]
+    if not present:
+        return None
+    return max(present)
+
+
 def bool_status(value: bool | None, skipped: bool = False) -> str:
     if skipped:
         return SKIP
@@ -81,16 +88,12 @@ def evaluate_role_row(
 
     positive_mention_ratio = safe_abs_ratio(mention_shift, positive_shift)
     negative_mention_ratio = safe_abs_ratio(mention_shift, negative_shift)
-    max_observed_mention_ratio_values = [
-        ratio for ratio in [positive_mention_ratio, negative_mention_ratio] if ratio is not None
-    ]
-    max_observed_mention_ratio = (
-        max(max_observed_mention_ratio_values) if max_observed_mention_ratio_values else None
-    )
+    elicitation_scale = max_abs_value([positive_shift, negative_shift])
+    mention_to_elicitation_ratio = safe_abs_ratio(mention_shift, elicitation_scale)
 
     mention_control_pass = None
-    if max_observed_mention_ratio is not None:
-        mention_control_pass = max_observed_mention_ratio <= max_mention_to_shift_ratio
+    if mention_to_elicitation_ratio is not None:
+        mention_control_pass = mention_to_elicitation_ratio <= max_mention_to_shift_ratio
 
     axis_alignment_pass = None
     if axis_alignment is not None:
@@ -115,7 +118,8 @@ def evaluate_role_row(
         "axis_alignment_cosine": axis_alignment,
         "positive_mention_ratio": positive_mention_ratio,
         "negative_mention_ratio": negative_mention_ratio,
-        "max_observed_mention_ratio": max_observed_mention_ratio,
+        "elicitation_scale": elicitation_scale,
+        "mention_to_elicitation_ratio": mention_to_elicitation_ratio,
         "positive_direction_pass": positive_direction_pass,
         "negative_direction_pass": negative_direction_pass,
         "mention_control_pass": mention_control_pass,
@@ -190,7 +194,8 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         "axis_alignment_cosine",
         "positive_mention_ratio",
         "negative_mention_ratio",
-        "max_observed_mention_ratio",
+        "elicitation_scale",
+        "mention_to_elicitation_ratio",
         "positive_direction_pass",
         "negative_direction_pass",
         "mention_control_pass",
