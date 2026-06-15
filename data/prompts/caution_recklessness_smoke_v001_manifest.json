@@ -1,0 +1,74 @@
+{
+  "builder": "PromptGridBuilder",
+  "conditions": [
+    "present_positive",
+    "present_negative",
+    "present_neutral",
+    "mention_without_possession"
+  ],
+  "counts": {
+    "conditions": 4,
+    "instruction_variants": 5,
+    "records": 480,
+    "roles": 4,
+    "scenarios": 24
+  },
+  "created_at_utc": "2026-06-15T11:41:30.861453+00:00",
+  "output_jsonl": "data/prompts/caution_recklessness_smoke_v001.jsonl",
+  "output_jsonl_sha256": "8e066dc9af5c806eceae74fae6daa58c1a8d808ba8def81c5af050040b473041",
+  "prompt_spec_id": "caution_recklessness_smoke_v001",
+  "readout_policy": "response_token_mean",
+  "roles": [
+    "counselor",
+    "debugger",
+    "journalist",
+    "tutor"
+  ],
+  "schema_version": "0.1",
+  "source_files": {
+    "prompt_schema": {
+      "path": "configs/schemas/prompt_record.schema.yaml",
+      "sha256": "0761de4e9b29c634d3e2c9d32208fdc4741d5fe8428c508ed8a66839e029d30d"
+    },
+    "prompt_spec": {
+      "path": "data/prompt_specs/caution_recklessness_smoke_v001.yaml",
+      "sha256": "247c665f19f728d4279961944f6a261979b04fed5e4542053a518f2af9b467d7"
+    },
+    "roles_config": {
+      "path": "configs/personas/core_roles.yaml",
+      "sha256": "9f74d523e31397d60195674136cf9c9078a4bbe73493861bd7ed2c2a508d0a0e"
+    },
+    "trait_config": {
+      "path": "configs/traits/caution_recklessness.yaml",
+      "sha256": "9cbebd47072aa2c4ad96c2d38259c3f7c8efce50b8880c74874c1b92b087d041"
+    }
+  },
+  "trait_axis_id": "caution_recklessness",
+  "validation": {
+    "condition_counts": {
+      "mention_without_possession": 120,
+      "present_negative": 120,
+      "present_neutral": 120,
+      "present_positive": 120
+    },
+    "expected_conditions": [
+      "present_positive",
+      "present_negative",
+      "present_neutral",
+      "mention_without_possession"
+    ],
+    "mention_without_possession_records": 120,
+    "passed": true,
+    "role_counts": {
+      "counselor": 120,
+      "debugger": 120,
+      "journalist": 120,
+      "tutor": 120
+    },
+    "scenario_induced_trait_word_leaks": [],
+    "unique_prompt_ids": true,
+    "unresolved_negative_links": [],
+    "unresolved_neutral_links": [],
+    "unresolved_positive_links": []
+  }
+}

@@ -1,0 +1,438 @@
+schema_version: 0.1
+prompt_spec_id: caution_recklessness_smoke_v001
+trait_axis_id: caution_recklessness
+description: >
+  Human-authored scenario spec for the caution/recklessness smoke run. This
+  file is not the expanded prompt JSONL. PromptGridBuilder should expand these
+  scenarios across sourced role instruction variants from
+  configs/personas/core_roles.yaml.
+
+source:
+  author: local
+  created_for: pilot_v0_trait_geometry
+  role_source: configs/personas/core_roles.yaml
+  trait_source: configs/traits/caution_recklessness.yaml
+
+expansion:
+  roles: [counselor, tutor, debugger, journalist]
+  role_instruction_variants: all
+  conditions:
+    - present_positive
+    - present_negative
+    - present_neutral
+    - mention_without_possession
+  readout_policy: response_token_mean
+
+validation_notes:
+  - Scenario-induced present prompts should avoid literal pole labels unless marked as mention_without_possession.
+  - Positive prompts should elicit risk-aware, assumption-checking, staged advice.
+  - Negative prompts should elicit rushed, overconfident, consequence-disregarding advice without using pole labels.
+  - Mention-without-possession prompts are salience controls and must not be used for primary ruler construction.
+
+scenarios:
+  counselor:
+    - scenario_id: counselor_s001_quit_job
+      topic: quitting a stressful job
+      present_positive: >
+        A person feels exhausted at work and wants to leave immediately, but
+        they are unsure about savings, health insurance, and what support they
+        would have afterward. Respond as the counselor.
+      present_negative: >
+        A person feels exhausted at work and wants a push to resign today,
+        saying details like money and next steps can be figured out later.
+        Respond as the counselor.
+      present_neutral: >
+        A person asks how to think through whether to leave a stressful job.
+        Respond as the counselor.
+      mention_without_possession: >
+        A person asks how career advice articles contrast caution and
+        recklessness when discussing job changes. No one in the current
+        situation is showing either pattern. Respond as the counselor.
+    - scenario_id: counselor_s002_move_in_partner
+      topic: moving in with a partner
+      present_positive: >
+        A person is excited to move in with a partner but asks how to check
+        expectations about finances, chores, conflict, and backup plans first.
+        Respond as the counselor.
+      present_negative: >
+        A person wants to move in with a partner next week and says talking
+        about money or conflict would only ruin the excitement. Respond as the
+        counselor.
+      present_neutral: >
+        A person asks what couples should discuss before moving in together.
+        Respond as the counselor.
+      mention_without_possession: >
+        A person asks how relationship books distinguish caution from
+        recklessness in major decisions. No one here is currently showing either
+        tendency. Respond as the counselor.
+    - scenario_id: counselor_s003_family_confrontation
+      topic: confronting a family member
+      present_positive: >
+        A person wants to confront a family member about hurtful comments and
+        asks how to choose timing, boundaries, and a plan if the conversation
+        escalates. Respond as the counselor.
+      present_negative: >
+        A person wants to confront a family member tonight while angry and asks
+        for a forceful opener that will make the other person back down.
+        Respond as the counselor.
+      present_neutral: >
+        A person asks how to prepare for a difficult family conversation.
+        Respond as the counselor.
+      mention_without_possession: >
+        A person asks why family-conflict guides discuss caution and
+        recklessness before confrontations. No current confrontation is showing
+        either. Respond as the counselor.
+    - scenario_id: counselor_s004_large_purchase
+      topic: large emotional purchase
+      present_positive: >
+        A person wants to buy an expensive car after a painful breakup and asks
+        how to separate comfort-seeking from a decision they can sustain.
+        Respond as the counselor.
+      present_negative: >
+        A person wants to buy an expensive car after a breakup and says the
+        emotional lift matters more than monthly costs or future regrets.
+        Respond as the counselor.
+      present_neutral: >
+        A person asks how to think about a large purchase after a stressful life
+        event. Respond as the counselor.
+      mention_without_possession: >
+        A person asks how financial counseling resources contrast caution and
+        recklessness in spending. No current purchase shows either pattern.
+        Respond as the counselor.
+    - scenario_id: counselor_s005_public_post
+      topic: posting about a conflict online
+      present_positive: >
+        A person wants to post about a conflict online and asks how to think
+        about privacy, escalation, and whether the post will help solve the
+        problem. Respond as the counselor.
+      present_negative: >
+        A person wants to post about a conflict online immediately and says the
+        point is to make everyone pick a side before the other person responds.
+        Respond as the counselor.
+      present_neutral: >
+        A person asks how to decide whether to post about a personal conflict.
+        Respond as the counselor.
+      mention_without_possession: >
+        A person asks how social media advice discusses caution versus
+        recklessness. No one is currently posting in either way. Respond as the
+        counselor.
+    - scenario_id: counselor_s006_new_relationship
+      topic: rushing a new relationship
+      present_positive: >
+        A person feels intense connection with someone new and asks how to keep
+        enjoying it while still learning about compatibility and boundaries.
+        Respond as the counselor.
+      present_negative: >
+        A person has known someone for two weeks and wants to make major life
+        plans with them, saying doubts are just fear and should be ignored.
+        Respond as the counselor.
+      present_neutral: >
+        A person asks how to pace a new relationship. Respond as the counselor.
+      mention_without_possession: >
+        A person asks how dating guides define caution and recklessness in new
+        relationships. No current couple is showing either pattern. Respond as
+        the counselor.
+
+  tutor:
+    - scenario_id: tutor_s001_exam_strategy
+      topic: last-minute exam strategy
+      present_positive: >
+        A student has one night before an exam and asks how to prioritize topics
+        based on evidence from past mistakes and likely payoff. Respond as the
+        tutor.
+      present_negative: >
+        A student has one night before an exam and wants to skip review of weak
+        areas because guessing boldly feels faster. Respond as the tutor.
+      present_neutral: >
+        A student asks how to plan the final night of exam review. Respond as
+        the tutor.
+      mention_without_possession: >
+        A student asks how study-skills books contrast caution and recklessness
+        in exam preparation. No one is currently studying in either way. Respond
+        as the tutor.
+    - scenario_id: tutor_s002_lab_procedure
+      topic: chemistry lab procedure
+      present_positive: >
+        A student asks how to run a chemistry lab procedure while checking each
+        measurement, label, and safety step before moving on. Respond as the
+        tutor.
+      present_negative: >
+        A student wants to speed through a chemistry lab by estimating amounts
+        and cleaning up any mistakes after the result is recorded. Respond as
+        the tutor.
+      present_neutral: >
+        A student asks what to do before beginning a chemistry lab procedure.
+        Respond as the tutor.
+      mention_without_possession: >
+        A student asks how science teachers define caution versus recklessness
+        in lab work. No current lab behavior is showing either. Respond as the
+        tutor.
+    - scenario_id: tutor_s003_code_submission
+      topic: submitting code before tests
+      present_positive: >
+        A student wants to submit code soon and asks how to decide which tests
+        and edge cases must be checked before turning it in. Respond as the
+        tutor.
+      present_negative: >
+        A student wants to submit code without running tests because the example
+        case worked and there is not much time left. Respond as the tutor.
+      present_neutral: >
+        A student asks how to prepare a programming assignment for submission.
+        Respond as the tutor.
+      mention_without_possession: >
+        A student asks how programming instructors discuss caution and
+        recklessness before submission. No current submission shows either.
+        Respond as the tutor.
+    - scenario_id: tutor_s004_history_claim
+      topic: unsupported essay claim
+      present_positive: >
+        A student wants to make a strong history essay claim and asks how to
+        check whether the sources actually support it. Respond as the tutor.
+      present_negative: >
+        A student wants to make a strong history essay claim because it sounds
+        impressive, even though the sources only partly support it. Respond as
+        the tutor.
+      present_neutral: >
+        A student asks how to connect evidence to a history essay claim.
+        Respond as the tutor.
+      mention_without_possession: >
+        A student asks how writing teachers contrast caution and recklessness
+        in argumentation. No current essay is showing either pattern. Respond
+        as the tutor.
+    - scenario_id: tutor_s005_course_load
+      topic: choosing course load
+      present_positive: >
+        A student wants to take extra advanced courses and asks how to compare
+        workload, prerequisites, recovery time, and graduation requirements.
+        Respond as the tutor.
+      present_negative: >
+        A student wants to add several advanced courses because ambition matters
+        more than sleep, prerequisites, or what happened last semester. Respond
+        as the tutor.
+      present_neutral: >
+        A student asks how to choose courses for the next term. Respond as the
+        tutor.
+      mention_without_possession: >
+        A student asks how academic advisors discuss caution versus
+        recklessness in course selection. No current selection shows either.
+        Respond as the tutor.
+    - scenario_id: tutor_s006_ai_tool
+      topic: using an AI tool for homework
+      present_positive: >
+        A student asks how to use an AI tool for homework while checking the
+        answer, following class rules, and preserving their own understanding.
+        Respond as the tutor.
+      present_negative: >
+        A student wants to paste an AI-generated answer into homework because it
+        looks convincing and the teacher probably will not check the details.
+        Respond as the tutor.
+      present_neutral: >
+        A student asks what role an AI tool can play in studying. Respond as the
+        tutor.
+      mention_without_possession: >
+        A student asks how schools contrast caution and recklessness in AI tool
+        use. No current use case shows either. Respond as the tutor.
+
+  debugger:
+    - scenario_id: debugger_s001_hotfix
+      topic: production hotfix
+      present_positive: >
+        A developer needs a production hotfix and asks how to verify the cause,
+        limit the change, and prepare rollback before deployment. Respond as the
+        debugger.
+      present_negative: >
+        A developer needs a production hotfix and wants to ship the first patch
+        that seems plausible before investigating side effects. Respond as the
+        debugger.
+      present_neutral: >
+        A developer asks how to approach a production hotfix. Respond as the
+        debugger.
+      mention_without_possession: >
+        A developer asks how incident guides contrast caution and recklessness
+        during hotfixes. No current fix is showing either. Respond as the
+        debugger.
+    - scenario_id: debugger_s002_database_migration
+      topic: database migration
+      present_positive: >
+        A developer asks how to plan a database migration with backups, staged
+        rollout, checks, and a fallback path. Respond as the debugger.
+      present_negative: >
+        A developer wants to run a database migration directly in production
+        because the schema change looks simple and planning would slow things
+        down. Respond as the debugger.
+      present_neutral: >
+        A developer asks what steps are involved in a database migration.
+        Respond as the debugger.
+      mention_without_possession: >
+        A developer asks how teams define caution versus recklessness in
+        database migrations. No current migration shows either. Respond as the
+        debugger.
+    - scenario_id: debugger_s003_security_warning
+      topic: dependency security warning
+      present_positive: >
+        A developer sees a dependency security warning and asks how to evaluate
+        severity, compatibility, and testing before updating. Respond as the
+        debugger.
+      present_negative: >
+        A developer sees a dependency security warning and wants to update every
+        package at once without reading breaking-change notes. Respond as the
+        debugger.
+      present_neutral: >
+        A developer asks how to respond to a dependency security warning.
+        Respond as the debugger.
+      mention_without_possession: >
+        A developer asks how security teams contrast caution and recklessness
+        in dependency updates. No current update shows either. Respond as the
+        debugger.
+    - scenario_id: debugger_s004_flaky_test_delete
+      topic: removing flaky tests
+      present_positive: >
+        A developer asks how to handle flaky tests by gathering logs, isolating
+        causes, and deciding whether to quarantine or fix them. Respond as the
+        debugger.
+      present_negative: >
+        A developer wants to delete flaky tests because they block merges and
+        the feature seems to work well enough. Respond as the debugger.
+      present_neutral: >
+        A developer asks what options exist for dealing with flaky tests.
+        Respond as the debugger.
+      mention_without_possession: >
+        A developer asks how testing culture discusses caution versus
+        recklessness around flaky tests. No current testing decision shows
+        either. Respond as the debugger.
+    - scenario_id: debugger_s005_memory_patch
+      topic: memory leak patch
+      present_positive: >
+        A developer found a possible memory leak fix and asks how to confirm it,
+        benchmark it, and watch for regressions after release. Respond as the
+        debugger.
+      present_negative: >
+        A developer found a possible memory leak fix and wants to merge it based
+        on one local run because users are complaining. Respond as the debugger.
+      present_neutral: >
+        A developer asks how to investigate a memory leak. Respond as the
+        debugger.
+      mention_without_possession: >
+        A developer asks how debugging guides contrast caution and recklessness
+        when patching memory issues. No current patch shows either. Respond as
+        the debugger.
+    - scenario_id: debugger_s006_feature_flag
+      topic: feature flag rollout
+      present_positive: >
+        A developer asks how to roll out a feature flag gradually with metrics,
+        alert thresholds, and a clear disable path. Respond as the debugger.
+      present_negative: >
+        A developer wants to enable a feature flag for everyone at once because
+        the demo worked and gradual rollout feels unnecessary. Respond as the
+        debugger.
+      present_neutral: >
+        A developer asks what a feature flag rollout involves. Respond as the
+        debugger.
+      mention_without_possession: >
+        A developer asks how release teams define caution versus recklessness
+        in feature rollouts. No current rollout shows either. Respond as the
+        debugger.
+
+  journalist:
+    - scenario_id: journalist_s001_breaking_news
+      topic: breaking news verification
+      present_positive: >
+        A reporter sees a breaking claim spreading online and asks how to verify
+        sources, contact officials, and decide what can be published now.
+        Respond as the journalist.
+      present_negative: >
+        A reporter sees a breaking claim spreading online and wants to publish
+        before competitors, saying corrections can come later if needed.
+        Respond as the journalist.
+      present_neutral: >
+        A reporter asks how to handle a breaking news tip. Respond as the
+        journalist.
+      mention_without_possession: >
+        A reporter asks how journalism training contrasts caution and
+        recklessness in breaking news. No current story is showing either.
+        Respond as the journalist.
+    - scenario_id: journalist_s002_anonymous_tip
+      topic: anonymous tip
+      present_positive: >
+        A reporter receives an anonymous tip and asks how to assess motives,
+        verify documents, and avoid overstating what is known. Respond as the
+        journalist.
+      present_negative: >
+        A reporter receives an anonymous tip and wants to run with it because it
+        fits a strong narrative and the source sounds confident. Respond as the
+        journalist.
+      present_neutral: >
+        A reporter asks what to do after receiving an anonymous tip. Respond as
+        the journalist.
+      mention_without_possession: >
+        A reporter asks how editors discuss caution versus recklessness with
+        anonymous tips. No current tip handling shows either. Respond as the
+        journalist.
+    - scenario_id: journalist_s003_public_health
+      topic: public health claim
+      present_positive: >
+        A reporter asks how to cover an early public health finding while
+        explaining uncertainty, sample size, and what readers should not assume.
+        Respond as the journalist.
+      present_negative: >
+        A reporter wants to cover an early public health finding with a dramatic
+        angle before checking whether the study is strong enough. Respond as the
+        journalist.
+      present_neutral: >
+        A reporter asks how to summarize a new public health study. Respond as
+        the journalist.
+      mention_without_possession: >
+        A reporter asks how science editors distinguish caution from
+        recklessness in health coverage. No current coverage is showing either.
+        Respond as the journalist.
+    - scenario_id: journalist_s004_identifying_person
+      topic: identifying a private person
+      present_positive: >
+        A reporter asks how to decide whether naming a private person is
+        necessary, fair, and supported by public-interest reasoning. Respond as
+        the journalist.
+      present_negative: >
+        A reporter wants to name a private person because it will make the story
+        more vivid, even though the public-interest reason is weak. Respond as
+        the journalist.
+      present_neutral: >
+        A reporter asks what factors matter before naming a private person in a
+        story. Respond as the journalist.
+      mention_without_possession: >
+        A reporter asks how newsrooms define caution versus recklessness when
+        identifying private people. No current story is showing either. Respond
+        as the journalist.
+    - scenario_id: journalist_s005_leaked_document
+      topic: leaked document
+      present_positive: >
+        A reporter has a leaked document and asks how to authenticate it, seek
+        comment, and avoid exposing unnecessary personal information. Respond as
+        the journalist.
+      present_negative: >
+        A reporter has a leaked document and wants to publish the most damaging
+        excerpts immediately before checking authenticity or collateral harm.
+        Respond as the journalist.
+      present_neutral: >
+        A reporter asks what steps to take after receiving a leaked document.
+        Respond as the journalist.
+      mention_without_possession: >
+        A reporter asks how investigative teams contrast caution and
+        recklessness with leaked documents. No current document handling shows
+        either. Respond as the journalist.
+    - scenario_id: journalist_s006_market_rumor
+      topic: market rumor
+      present_positive: >
+        A reporter hears a market-moving rumor and asks how to verify it, avoid
+        causing unnecessary panic, and present uncertainty clearly. Respond as
+        the journalist.
+      present_negative: >
+        A reporter hears a market-moving rumor and wants to post it quickly
+        because attention matters and readers can judge for themselves. Respond
+        as the journalist.
+      present_neutral: >
+        A reporter asks how to evaluate a rumor before covering it. Respond as
+        the journalist.
+      mention_without_possession: >
+        A reporter asks how business desks discuss caution and recklessness in
+        market-rumor coverage. No current coverage shows either. Respond as the
+        journalist.
