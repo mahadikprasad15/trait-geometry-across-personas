@@ -63,6 +63,15 @@ def check_generation_dependencies() -> dict[str, Any]:
     return results
 
 
+def progress_iter(items: list[Any], description: str):
+    try:
+        from tqdm.auto import tqdm
+
+        return tqdm(items, desc=description, unit="prompt")
+    except Exception:
+        return items
+
+
 def build_work_items(prompt_records: list[dict[str, Any]]) -> list[GenerationWorkItem]:
     items: list[GenerationWorkItem] = []
     for record in prompt_records:
@@ -352,7 +361,7 @@ def run_generation(
     append_log(log_path, f"model loaded; remaining records={len(remaining)}")
 
     generated_count = 0
-    for item in remaining:
+    for item in progress_iter(remaining, "generating"):
         try:
             record = generate_one(tokenizer, model, item, model_config["generation"])
             append_jsonl(results_path, [record])

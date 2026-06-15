@@ -31,7 +31,7 @@ data/prompts/warmth_coldness_balanced_smoke_v001.jsonl
 Install the model stack in the Vast environment:
 
 ```bash
-pip install torch transformers accelerate huggingface_hub pyyaml
+pip install torch transformers accelerate huggingface_hub pyyaml tqdm
 ```
 
 If the Llama model requires gated access, set:

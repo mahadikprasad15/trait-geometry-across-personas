@@ -30,7 +30,7 @@ Llama 3.2 1B has 16 layers in current TransformerLens metadata. Layer 8 is the s
 Install:
 
 ```bash
-pip install torch transformers transformer_lens accelerate huggingface_hub pyyaml
+pip install torch transformers transformer_lens accelerate huggingface_hub pyyaml tqdm
 ```
 
 If the model requires gated access:

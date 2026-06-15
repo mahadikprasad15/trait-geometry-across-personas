@@ -72,6 +72,15 @@ def check_activation_dependencies(backend: str) -> dict[str, Any]:
     return results
 
 
+def progress_iter(items: list[Any], description: str):
+    try:
+        from tqdm.auto import tqdm
+
+        return tqdm(items, desc=description, unit="prompt")
+    except Exception:
+        return items
+
+
 def make_run_dirs(run_root: Path) -> dict[str, Path]:
     paths = {
         "inputs": run_root / "inputs",
@@ -406,7 +415,7 @@ def run_activation_cache(
     append_log(log_path, f"model loaded; remaining records={len(remaining)}")
 
     cached_this_run = 0
-    for item in remaining:
+    for item in progress_iter(remaining, "caching activations"):
         try:
             act_path = paths["activations"] / artifact_name(item.prompt_id)
             index_record = cache_one_transformer_lens(model, item, layers, act_path)
