@@ -226,13 +226,26 @@ def load_transformer_lens_model(model_config: dict[str, Any]):
     model_name = model_config["huggingface_model_name"]
     token = os.environ.get("HF_TOKEN") or None
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = HookedTransformer.from_pretrained(
-        model_name,
-        device=device,
-        hf_model_kwargs={"token": token} if token else {},
-    )
-    model.eval()
-    return model
+    load_attempts = []
+    if token:
+        load_attempts.extend([{"token": token}, {"use_auth_token": token}])
+    load_attempts.append({})
+
+    last_type_error: TypeError | None = None
+    for kwargs in load_attempts:
+        try:
+            model = HookedTransformer.from_pretrained(model_name, device=device, **kwargs)
+            model.eval()
+            return model
+        except TypeError as exc:
+            message = str(exc)
+            if "unexpected keyword argument" not in message:
+                raise
+            last_type_error = exc
+            continue
+    if last_type_error is not None:
+        raise last_type_error
+    raise RuntimeError(f"failed to load TransformerLens model {model_name}")
 
 
 def cache_one_transformer_lens(
@@ -539,4 +552,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
