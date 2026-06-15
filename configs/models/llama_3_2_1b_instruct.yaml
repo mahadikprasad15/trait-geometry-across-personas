@@ -1,0 +1,59 @@
+schema_version: 0.1
+model_id: llama_3_2_1b_instruct
+display_name: Llama 3.2 1B Instruct
+provider: huggingface
+huggingface_model_name: meta-llama/Llama-3.2-1B-Instruct
+model_family: llama
+model_version: "3.2"
+parameter_scale: 1B
+chat_model: true
+
+purpose:
+  smoke_run: true
+  notes: >
+    First target for prompt-generation and activation-cache smoke runs. The 1B
+    instruct model is chosen before larger models because it is cheaper for
+    pipeline validation.
+
+local_environment_status:
+  checked_at: "2026-06-14"
+  python: "3.9.6"
+  torch_installed: false
+  transformers_installed: false
+  transformer_lens_installed: false
+  notes: >
+    Required model packages are not installed in the current local environment.
+    Generation and activation runners should fail with explicit dependency
+    messages until dependencies and model access are configured.
+
+generation:
+  preferred_backend: transformers
+  fallback_backend: none
+  max_new_tokens: 192
+  temperature: 0.0
+  do_sample: false
+  batch_size: 1
+
+activation_extraction:
+  preferred_backend: transformer_lens
+  fallback_backend: transformers_hooks
+  source_check:
+    name: TransformerLens loading_from_pretrained.py
+    url: https://github.com/TransformerLensOrg/TransformerLens/blob/main/transformer_lens/loading_from_pretrained.py
+    observation: >
+      Current TransformerLens source contains explicit config branches for
+      Llama-3.2-1B and Llama-3.2-3B text models.
+  first_layer_policy:
+    mode: middle_layer_only
+    layers: [8]
+    readout_policy: response_token_mean
+    notes: >
+      Llama 3.2 1B has 16 layers in current TransformerLens metadata. Layer 8
+      is the single middle-layer smoke-run target using zero-based layer ids.
+
+access_requirements:
+  hf_token_required: likely
+  gated_model_possible: true
+  notes: >
+    Meta Llama models may require Hugging Face access approval and an HF token.
+    Keep this as an environment/setup concern rather than hardcoding tokens.

@@ -18,5 +18,5 @@ artifacts/sync_manifests/
 
 # Large model/data caches
 .cache/
-models/
-checkpoints/
+/models/
+/checkpoints/

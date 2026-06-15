@@ -1,0 +1,46 @@
+schema_version: 0.1
+model_id: llama_3_2_3b_instruct
+display_name: Llama 3.2 3B Instruct
+provider: huggingface
+huggingface_model_name: meta-llama/Llama-3.2-3B-Instruct
+model_family: llama
+model_version: "3.2"
+parameter_scale: 3B
+chat_model: true
+
+purpose:
+  smoke_run: false
+  notes: >
+    Secondary pilot model after the 1B pipeline is validated. Do not use before
+    prompt/generation/activation artifacts work on the 1B model.
+
+local_environment_status:
+  checked_at: "2026-06-14"
+  torch_installed: false
+  transformers_installed: false
+  transformer_lens_installed: false
+  notes: >
+    Required model packages are not installed in the current local environment.
+
+generation:
+  preferred_backend: transformers
+  fallback_backend: none
+  max_new_tokens: 192
+  temperature: 0.0
+  do_sample: false
+  batch_size: 1
+
+activation_extraction:
+  preferred_backend: transformer_lens
+  fallback_backend: transformers_hooks
+  first_layer_policy:
+    mode: middle_layer_only
+    layers: [14]
+    readout_policy: response_token_mean
+    notes: >
+      Llama 3.2 3B has 28 layers in current TransformerLens metadata. Layer 14
+      is the later middle-layer target using zero-based layer ids.
+
+access_requirements:
+  hf_token_required: likely
+  gated_model_possible: true
