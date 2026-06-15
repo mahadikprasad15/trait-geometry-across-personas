@@ -31,6 +31,7 @@ Actual vector build:
 python3 scripts/analysis/build_vectors.py \
   --activation-index artifacts/runs/trait_geometry_pilot_v0/llama_3_2_1b_instruct/warmth_coldness/primary_roles/activations/20260614T000000Z-full/results/activation_index.jsonl \
   --output-dir artifacts/runs/trait_geometry_pilot_v0/llama_3_2_1b_instruct/warmth_coldness/primary_roles/analysis/20260614T000000Z-full/results/vectors \
+  --trait-axis-id warmth_coldness \
   --layers 8
 ```
 
@@ -59,6 +60,7 @@ python3 scripts/analysis/build_rulers.py \
   --experiment-config configs/experiments/pilot_v0.yaml \
   --output-dir artifacts/runs/trait_geometry_pilot_v0/llama_3_2_1b_instruct/warmth_coldness/primary_roles/analysis/20260614T000000Z-full/results/rulers \
   --layer 8 \
+  --trait-axis-id warmth_coldness \
   --dry-run
 ```
 
@@ -69,7 +71,8 @@ python3 scripts/analysis/build_rulers.py \
   --role-trait-vectors artifacts/runs/trait_geometry_pilot_v0/llama_3_2_1b_instruct/warmth_coldness/primary_roles/analysis/20260614T000000Z-full/results/vectors/role_trait_vectors.pt \
   --experiment-config configs/experiments/pilot_v0.yaml \
   --output-dir artifacts/runs/trait_geometry_pilot_v0/llama_3_2_1b_instruct/warmth_coldness/primary_roles/analysis/20260614T000000Z-full/results/rulers \
-  --layer 8
+  --layer 8 \
+  --trait-axis-id warmth_coldness
 ```
 
 Expected outputs:

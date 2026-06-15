@@ -82,6 +82,19 @@ def validate_condition_coverage(index_records: list[dict[str, Any]]) -> dict[str
     }
 
 
+def resolve_trait_axis_id(index_records: list[dict[str, Any]], explicit_trait_axis_id: str | None) -> str | None:
+    if explicit_trait_axis_id:
+        return explicit_trait_axis_id
+    trait_axis_ids = {
+        str(record["trait_axis_id"])
+        for record in index_records
+        if record.get("trait_axis_id")
+    }
+    if len(trait_axis_ids) == 1:
+        return next(iter(trait_axis_ids))
+    return None
+
+
 def mean_tensor(tensors: list[Any]):
     import torch
 
@@ -182,6 +195,7 @@ def write_vector_artifacts(
     output_dir: Path,
     activation_index: Path,
     layers: list[int],
+    trait_axis_id: str | None,
     vector_payload: dict[str, Any],
     summary: dict[str, Any],
     coverage: dict[str, Any],
@@ -196,6 +210,7 @@ def write_vector_artifacts(
 
     torch.save(
         {
+            "trait_axis_id": trait_axis_id,
             "layers": layers,
             "role_condition_means": vector_payload["role_condition_means"],
             "global_neutral_means": vector_payload["global_neutral_means"],
@@ -205,6 +220,7 @@ def write_vector_artifacts(
     plain_counts = counts_to_plain(vector_payload["counts"])
     torch.save(
         {
+            "trait_axis_id": trait_axis_id,
             "layers": layers,
             "role_trait_vectors": vector_payload["role_trait_vectors"],
             "counts": plain_counts,
@@ -217,6 +233,7 @@ def write_vector_artifacts(
         {
             "schema_version": "0.1",
             "created_at_utc": datetime.now(timezone.utc).isoformat(),
+            "trait_axis_id": trait_axis_id,
             "activation_index": str(activation_index),
             "layers": layers,
             "role_condition_means": str(means_path),
@@ -230,6 +247,7 @@ def write_vector_artifacts(
             "schema_version": "0.1",
             "builder": "VectorBuilder",
             "created_at_utc": datetime.now(timezone.utc).isoformat(),
+            "trait_axis_id": trait_axis_id,
             "activation_index": str(activation_index),
             "output_dir": str(output_dir),
             "layers": layers,
@@ -256,6 +274,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--activation-index", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--layers", type=int, nargs="+", default=[8])
+    parser.add_argument("--trait-axis-id", default=None)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--dry-run", action="store_true")
     return parser
@@ -266,6 +285,7 @@ def main() -> int:
     index_records = load_jsonl(args.activation_index, limit=args.limit)
     summary = summarize_index(index_records)
     coverage = validate_condition_coverage(index_records)
+    trait_axis_id = resolve_trait_axis_id(index_records, args.trait_axis_id)
     dependency_status = check_torch_dependency()
 
     if args.dry_run:
@@ -275,6 +295,7 @@ def main() -> int:
                     "mode": "dry_run",
                     "activation_index": str(args.activation_index),
                     "output_dir": str(args.output_dir),
+                    "trait_axis_id": trait_axis_id,
                     "layers": args.layers,
                     "summary": summary,
                     "condition_coverage": coverage,
@@ -320,6 +341,7 @@ def main() -> int:
         output_dir=args.output_dir,
         activation_index=args.activation_index,
         layers=args.layers,
+        trait_axis_id=trait_axis_id,
         vector_payload=vector_payload,
         summary=summary,
         coverage=coverage,

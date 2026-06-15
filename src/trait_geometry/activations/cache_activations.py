@@ -404,6 +404,7 @@ def cache_batch_transformer_lens(
         index_records.append(
             {
                 "prompt_id": item.prompt_id,
+                "trait_axis_id": item.metadata.get("trait_axis_id"),
                 "activation_path": str(activation_path),
                 "layers": layers,
                 "readout_policy": "response_token_mean",

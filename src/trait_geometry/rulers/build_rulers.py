@@ -53,6 +53,18 @@ def load_role_trait_vectors(path: Path) -> dict[str, Any]:
     return torch.load(path, map_location="cpu")
 
 
+def resolve_trait_axis_id(
+    role_trait_payload: dict[str, Any] | None,
+    experiment_config: dict[str, Any],
+    explicit_trait_axis_id: str | None,
+) -> str:
+    if explicit_trait_axis_id:
+        return explicit_trait_axis_id
+    if role_trait_payload and role_trait_payload.get("trait_axis_id"):
+        return str(role_trait_payload["trait_axis_id"])
+    return str(experiment_config["smoke_run"]["trait_axis_id"])
+
+
 def select_vectors(
     role_trait_payload: dict[str, Any],
     layer: int,
@@ -182,11 +194,12 @@ def dry_run_summary(
     vector_type: str,
     role_trait_vectors_path: Path,
     method: str,
+    trait_axis_id: str,
 ) -> dict[str, Any]:
     chosen_roles = resolve_roles(experiment_config, method, roles)
     return {
         "role_trait_vectors": str(role_trait_vectors_path),
-        "trait_axis_id": experiment_config["smoke_run"]["trait_axis_id"],
+        "trait_axis_id": trait_axis_id,
         "layer": layer,
         "roles": chosen_roles,
         "vector_type": vector_type,
@@ -218,6 +231,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--layer", type=int, default=8)
     parser.add_argument("--roles", nargs="+", default=None)
     parser.add_argument("--vector-type", default="axis_vector")
+    parser.add_argument("--trait-axis-id", default=None)
     parser.add_argument("--method", choices=["primary_roles_mean", "role_free_mean"], default="primary_roles_mean")
     parser.add_argument("--dry-run", action="store_true")
     return parser
@@ -227,6 +241,10 @@ def main() -> int:
     args = build_arg_parser().parse_args()
     experiment_config = load_yaml(args.experiment_config)
     dependency_status = check_torch_dependency()
+    role_trait_payload = None
+    if not args.dry_run and dependency_status["ready"]:
+        role_trait_payload = load_role_trait_vectors(args.role_trait_vectors)
+    trait_axis_id = resolve_trait_axis_id(role_trait_payload, experiment_config, args.trait_axis_id)
     summary = dry_run_summary(
         experiment_config=experiment_config,
         layer=args.layer,
@@ -234,6 +252,7 @@ def main() -> int:
         vector_type=args.vector_type,
         role_trait_vectors_path=args.role_trait_vectors,
         method=args.method,
+        trait_axis_id=trait_axis_id,
     )
 
     if args.dry_run:
@@ -265,13 +284,14 @@ def main() -> int:
         return 2
 
     roles = resolve_roles(experiment_config, args.method, args.roles)
-    payload = load_role_trait_vectors(args.role_trait_vectors)
+    payload = role_trait_payload or load_role_trait_vectors(args.role_trait_vectors)
+    trait_axis_id = resolve_trait_axis_id(payload, experiment_config, args.trait_axis_id)
     ruler_payload = build_ruler(payload, args.layer, roles, args.vector_type)
     artifacts = write_ruler_artifacts(
         output_dir=args.output_dir,
         role_trait_vectors_path=args.role_trait_vectors,
         experiment_config_path=args.experiment_config,
-        trait_axis_id=experiment_config["smoke_run"]["trait_axis_id"],
+        trait_axis_id=trait_axis_id,
         method=args.method,
         ruler_payload=ruler_payload,
     )
