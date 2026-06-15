@@ -1,0 +1,76 @@
+schema_version: 0.1
+experiment_id: pilot_v0_trait_geometry
+description: >
+  First pilot for trait geometry across personas. Configure all five trait axes,
+  execute warmth/coldness first as an end-to-end smoke-run, then expand once the
+  prompt grid, activation cache, ruler construction, and salience gate work.
+
+configs:
+  personas: configs/personas/core_roles.yaml
+  prompt_schema: configs/schemas/prompt_record.schema.yaml
+  model: configs/models/llama_3_2_1b_instruct.yaml
+  traits:
+    - configs/traits/warmth_coldness.yaml
+    - configs/traits/sincerity_manipulativeness.yaml
+    - configs/traits/caution_recklessness.yaml
+    - configs/traits/curiosity_closed_mindedness.yaml
+    - configs/traits/skepticism_gullibility.yaml
+
+role_sets:
+  primary: [counselor, tutor, debugger, journalist]
+  heldout: [mediator, strategist]
+  stress_test: [critic, doctor, lawyer, spy, caregiver, skeptic]
+  role_free: [role_free]
+
+pilot_axes:
+  - warmth_coldness
+  - sincerity_manipulativeness
+  - caution_recklessness
+  - curiosity_closed_mindedness
+  - skepticism_gullibility
+
+smoke_run:
+  trait_axis_id: warmth_coldness
+  roles: [counselor, tutor, debugger, journalist]
+  role_instruction_variants: all
+  scenarios_per_role: 6
+  conditions:
+    - present_positive
+    - present_negative
+    - present_neutral
+    - mention_without_possession
+  excluded_until_after_smoke_run:
+    - instruction_positive
+    - instruction_negative
+    - other_positive
+    - other_negative
+    - other_neutral
+
+artifact_policy:
+  root: artifacts/runs
+  experiment_name: trait_geometry_pilot_v0
+  required_run_files:
+    - meta/run_manifest.json
+    - meta/status.json
+    - checkpoints/progress.json
+    - results/generations.jsonl
+    - results/activations
+    - results/scalar_decomposition.json
+    - logs/run.log
+  resume: true
+  overwrite_completed: false
+
+ruler_construction:
+  first_pass:
+    method: primary_roles_mean
+    role_scope: primary_roles_only
+    normalization: unit_l2_per_layer
+  role_free:
+    method: role_free_mean
+    role_scope: role_free_only
+    prompt_grid: data/prompts/warmth_coldness_role_free_v001.jsonl
+    normalization: unit_l2_per_layer
+  validation:
+    - salience_gate
+    - role_heldout_transfer
+    - ruler_convergence_later

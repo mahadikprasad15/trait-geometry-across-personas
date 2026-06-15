@@ -1,0 +1,37 @@
+schema_version: 0.1
+backend: huggingface_hub
+repo_id: prasadmahadik/trait-geometry-across-personas
+repo_type: dataset
+revision: main
+
+upload_policy:
+  include:
+    - configs/**
+    - data/prompts/**
+    - data/prompt_specs/**
+    - docs/design/project_tracker.md
+    - docs/design/*runbook.md
+    - artifacts/runs/**/meta/**
+    - artifacts/runs/**/checkpoints/**
+    - artifacts/runs/**/inputs/**
+    - artifacts/runs/**/results/generations.jsonl
+    - artifacts/runs/**/results/activation_index.jsonl
+    - artifacts/runs/**/results/vectors/**
+    - artifacts/runs/**/results/rulers/**
+    - artifacts/runs/**/results/scalars/**
+    - artifacts/runs/**/results/gates/**
+  exclude:
+    - .git/**
+    - "**/.DS_Store"
+    - artifacts/runs/**/logs/**
+    - artifacts/runs/**/results/activations/*.pt
+
+activation_upload_policy:
+  default_include_activation_tensors: false
+  include_when_flagged:
+    - artifacts/runs/**/results/activations/*.pt
+
+sync_metadata:
+  write_local_manifest: true
+  manifest_dir: artifacts/sync_manifests
+  require_hf_token_for_upload: true

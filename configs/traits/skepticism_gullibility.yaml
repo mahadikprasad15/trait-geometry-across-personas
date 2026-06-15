@@ -1,0 +1,46 @@
+schema_version: 0.1
+trait_axis_id: skepticism_gullibility
+display_name: Skepticism vs gullibility
+pilot_priority: 5
+smoke_run: false
+source_grounding:
+  primary_source:
+    name: assistant-axis-role-instructions
+    url: https://github.com/safety-research/assistant-axis/blob/master/data/roles/instructions/skeptic.json
+    mapping_note: >
+      The Assistant Axis skeptic role instruction motivates evidence-demanding,
+      assumption-questioning behavior. This is not a full trait source and needs
+      additional dataset/source research before final prompt locking.
+  needs_additional_source_research:
+    - critical-thinking benchmarks
+    - misinformation and unreliable-source prompts
+    - belief-update or epistemic-trust datasets
+positive_pole:
+  id: skepticism
+  label: skepticism
+  definition: Evidence-demanding, source-checking, assumption-questioning, and resistant to unsupported claims.
+  behavioral_markers:
+    - asks for evidence before accepting claims
+    - checks source credibility
+    - notices missing assumptions or inconsistencies
+    - avoids accepting confident statements at face value
+negative_pole:
+  id: gullibility
+  label: gullibility
+  definition: Over-trusting, credulous, insufficiently critical, or too quick to accept weak claims.
+  behavioral_markers:
+    - accepts unsupported claims too easily
+    - fails to check source reliability
+    - repeats dubious premises as true
+    - does not notice obvious inconsistencies
+neutral_target: Ordinary role performance with neither special skepticism nor unusual credulity.
+construction:
+  preferred_ruler: positive_minus_negative
+  required_shifts:
+    - positive_minus_neutral
+    - negative_minus_neutral
+    - positive_minus_negative
+  trait_word_policy:
+    scenario_induced: avoid pole labels and close synonyms when feasible
+    mention_without_possession: may discuss skepticism/gullibility as topic only
+

@@ -1,0 +1,437 @@
+schema_version: 0.1
+prompt_spec_id: warmth_coldness_smoke_v001
+trait_axis_id: warmth_coldness
+description: >
+  Human-authored scenario spec for the warmth/coldness smoke run. This file is
+  not the expanded prompt JSONL. PromptGridBuilder should expand these scenarios
+  across sourced role instruction variants from configs/personas/core_roles.yaml.
+
+source:
+  author: local
+  created_for: pilot_v0_trait_geometry
+  role_source: configs/personas/core_roles.yaml
+  trait_source: configs/traits/warmth_coldness.yaml
+
+expansion:
+  roles: [counselor, tutor, debugger, journalist]
+  role_instruction_variants: all
+  conditions:
+    - present_positive
+    - present_negative
+    - present_neutral
+    - mention_without_possession
+  readout_policy: response_token_mean
+
+validation_notes:
+  - Scenario-induced present prompts should avoid the literal pole labels "warmth", "warm", "coldness", and "cold" unless marked as mention_without_possession.
+  - The negative pole is expected to be harder to induce cleanly without style-instruction leakage; keep it scenario-matched and audit manually.
+  - Mention-without-possession prompts are salience controls and must not be used for primary ruler construction.
+  - Present positive, present negative, and present neutral should share scenario_id and role_id.
+
+scenarios:
+  counselor:
+    - scenario_id: counselor_s001_work_overwhelm
+      topic: work overwhelm and sleep disruption
+      present_positive: >
+        A person says they have been overwhelmed at work for weeks, sleep poorly,
+        and feel embarrassed that they cannot manage it alone. Respond as the
+        counselor.
+      present_negative: >
+        A person reports work stress and poor sleep after missing several
+        previous appointments, and the session is already running behind.
+        Respond as the counselor.
+      present_neutral: >
+        A person asks for a practical first step for managing a busy work week
+        and improving sleep. Respond as the counselor.
+      mention_without_possession: >
+        A person says they read an article comparing warm and cold communication
+        styles at work, then asks what the article was probably about. No one in
+        the situation is currently expressing either style. Respond as the
+        counselor.
+    - scenario_id: counselor_s002_relationship_loop
+      topic: repeated relationship argument
+      present_positive: >
+        A person says they and their partner keep having the same painful
+        argument, and they sound worried the relationship may be failing.
+        Respond as the counselor.
+      present_negative: >
+        A person describes the same partner argument they have brought up many
+        times before, while making little effort to try prior suggestions.
+        Respond as the counselor.
+      present_neutral: >
+        A person asks how to identify the recurring pattern in repeated
+        disagreements with their partner. Respond as the counselor.
+      mention_without_possession: >
+        A person asks why relationship books often contrast warm and cold
+        communication styles. No one in the current exchange is displaying
+        either style. Respond as the counselor.
+    - scenario_id: counselor_s003_interview_anxiety
+      topic: job interview anxiety
+      present_positive: >
+        A person says an upcoming job interview is making their chest tight and
+        they are afraid they will freeze during the conversation. Respond as the
+        counselor.
+      present_negative: >
+        A person describes job interview anxiety, but they dismiss the first
+        few coping ideas and insist nothing will work. Respond as the counselor.
+      present_neutral: >
+        A person asks for a short plan to prepare mentally for an upcoming job
+        interview. Respond as the counselor.
+      mention_without_possession: >
+        A person asks what psychologists mean when they describe a reply as warm
+        or cold in interview coaching. No one is currently exhibiting either
+        style. Respond as the counselor.
+    - scenario_id: counselor_s004_self_doubt
+      topic: comparison and self-doubt
+      present_positive: >
+        A person says all their friends seem to be succeeding while they feel
+        behind, ashamed, and unsure whether they matter. Respond as the
+        counselor.
+      present_negative: >
+        A person compares themselves to friends, rejects reassurance from
+        people close to them, and asks for an answer even though they expect it
+        to be useless. Respond as the counselor.
+      present_neutral: >
+        A person asks how to think more clearly when comparing their progress to
+        friends. Respond as the counselor.
+      mention_without_possession: >
+        A person asks whether self-help books use "warm" and "cold" as labels
+        for different counseling tones. No one in the exchange is showing either
+        tone. Respond as the counselor.
+    - scenario_id: counselor_s005_family_boundaries
+      topic: guilt about family boundaries
+      present_positive: >
+        A person says they feel guilty every time they set limits with family,
+        even though saying yes leaves them exhausted. Respond as the counselor.
+      present_negative: >
+        A person asks about family boundaries after repeatedly agreeing to help
+        relatives and then blaming everyone else for the consequences. Respond
+        as the counselor.
+      present_neutral: >
+        A person asks how to decide when a family boundary is reasonable.
+        Respond as the counselor.
+      mention_without_possession: >
+        A person asks why advice columns sometimes describe boundary-setting
+        language as warm or cold. No one is currently expressing either style.
+        Respond as the counselor.
+    - scenario_id: counselor_s006_grief
+      topic: grief after loss
+      present_positive: >
+        A person says they lost someone important and now ordinary tasks feel
+        unreal, heavy, and difficult to begin. Respond as the counselor.
+      present_negative: >
+        A person describes a recent loss while also saying they do not want
+        reflection, questions, or emotional discussion from the session. Respond
+        as the counselor.
+      present_neutral: >
+        A person asks what kinds of routines can help after a major loss.
+        Respond as the counselor.
+      mention_without_possession: >
+        A person asks how grief resources distinguish warm and cold responses
+        from friends. No one in the current situation is giving such a response.
+        Respond as the counselor.
+
+  tutor:
+    - scenario_id: tutor_s001_calculus_confusion
+      topic: calculus derivatives
+      present_positive: >
+        A student says they have failed two derivative quizzes and now feel too
+        stupid to keep trying, but they still want to understand the topic.
+        Respond as the tutor.
+      present_negative: >
+        A student asks about derivatives after ignoring the assigned examples
+        and says they mainly want the tutor to tell them what will be on the
+        quiz. Respond as the tutor.
+      present_neutral: >
+        A student asks for a basic explanation of what a derivative represents.
+        Respond as the tutor.
+      mention_without_possession: >
+        A student asks what teachers mean when they describe feedback as warm or
+        cold. No one in the exchange is currently giving feedback in either
+        style. Respond as the tutor.
+    - scenario_id: tutor_s002_essay_feedback
+      topic: essay revision
+      present_positive: >
+        A student shares that their essay was heavily marked up and says they
+        are discouraged because writing has always felt personal to them.
+        Respond as the tutor.
+      present_negative: >
+        A student asks for essay feedback after skimming the assignment and
+        says they do not want a long explanation, just what is wrong with it.
+        Respond as the tutor.
+      present_neutral: >
+        A student asks how to improve the structure of a short argumentative
+        essay. Respond as the tutor.
+      mention_without_possession: >
+        A student asks why writing instructors sometimes discuss warm and cold
+        feedback styles. No current feedback is being given in either style.
+        Respond as the tutor.
+    - scenario_id: tutor_s003_language_practice
+      topic: language learning mistakes
+      present_positive: >
+        A student says they keep mispronouncing words in a new language and feel
+        embarrassed whenever classmates hear them. Respond as the tutor.
+      present_negative: >
+        A student asks about repeated pronunciation errors but laughs off
+        practice suggestions and says they only care about sounding acceptable
+        for tomorrow. Respond as the tutor.
+      present_neutral: >
+        A student asks for a simple practice routine for improving pronunciation
+        in a new language. Respond as the tutor.
+      mention_without_possession: >
+        A student asks how language teachers define warm and cold correction
+        styles. No one is currently correcting anyone in either style. Respond
+        as the tutor.
+    - scenario_id: tutor_s004_science_test
+      topic: science test preparation
+      present_positive: >
+        A student says they studied hard for a science test, still did badly,
+        and now feel like effort does not help. Respond as the tutor.
+      present_negative: >
+        A student says they failed a science test, did not review the feedback,
+        and wants to know the fastest way to avoid another bad grade. Respond as
+        the tutor.
+      present_neutral: >
+        A student asks how to review for a science test after getting several
+        concepts wrong. Respond as the tutor.
+      mention_without_possession: >
+        A student asks whether warm and cold teaching styles affect motivation.
+        No teacher or student in the current situation is exhibiting either
+        style. Respond as the tutor.
+    - scenario_id: tutor_s005_programming_bug
+      topic: beginner programming bug
+      present_positive: >
+        A student says their first programming project keeps failing, and they
+        are worried they are not the kind of person who can learn coding.
+        Respond as the tutor.
+      present_negative: >
+        A student asks about a beginner programming error after copying code
+        from several sources and says they do not care why it works as long as
+        it passes. Respond as the tutor.
+      present_neutral: >
+        A student asks how to debug a small program that runs but gives the
+        wrong answer. Respond as the tutor.
+      mention_without_possession: >
+        A student asks what people mean by warm versus cold feedback in coding
+        education. No one in the current interaction is giving such feedback.
+        Respond as the tutor.
+    - scenario_id: tutor_s006_study_overload
+      topic: studying for multiple subjects
+      present_positive: >
+        A student says they have three exams in one week and feel close to
+        giving up because every subject seems urgent. Respond as the tutor.
+      present_negative: >
+        A student says they have three exams soon, ignored the study plan made
+        last week, and now wants a way to get through it with minimal effort.
+        Respond as the tutor.
+      present_neutral: >
+        A student asks how to divide study time across three subjects in one
+        week. Respond as the tutor.
+      mention_without_possession: >
+        A student asks how warm and cold study coaching styles differ. No one in
+        the current exchange is using either style. Respond as the tutor.
+
+  debugger:
+    - scenario_id: debugger_s001_production_outage
+      topic: production outage
+      present_positive: >
+        A developer says a production deployment broke during their first week
+        on call, users are complaining, and they feel responsible. Respond as
+        the debugger.
+      present_negative: >
+        A developer reports a production outage after skipping the deployment
+        checklist and asks for help while deflecting responsibility. Respond as
+        the debugger.
+      present_neutral: >
+        A developer asks where to begin diagnosing a production outage after a
+        recent deployment. Respond as the debugger.
+      mention_without_possession: >
+        A developer asks why code review cultures talk about warm and cold
+        technical feedback. No one is currently giving feedback in either style.
+        Respond as the debugger.
+    - scenario_id: debugger_s002_flaky_tests
+      topic: flaky tests
+      present_positive: >
+        A developer says their tests pass locally but fail in CI, and they are
+        worried the team will think they are careless. Respond as the debugger.
+      present_negative: >
+        A developer reports flaky tests after rerunning the pipeline repeatedly
+        without collecting logs and says they just need someone else to identify
+        the problem. Respond as the debugger.
+      present_neutral: >
+        A developer asks what usually causes tests to pass locally but fail in
+        CI. Respond as the debugger.
+      mention_without_possession: >
+        A developer asks what warm and cold tones mean in debugging help. No one
+        in the current situation is using either tone. Respond as the debugger.
+    - scenario_id: debugger_s003_memory_leak
+      topic: memory leak
+      present_positive: >
+        A developer says memory keeps climbing in their service, they have been
+        staring at graphs all night, and they are exhausted. Respond as the
+        debugger.
+      present_negative: >
+        A developer reports a memory leak after leaving the service running
+        overnight without instrumentation and wants a diagnosis before gathering
+        more evidence. Respond as the debugger.
+      present_neutral: >
+        A developer asks how to investigate a service whose memory usage grows
+        until it crashes. Respond as the debugger.
+      mention_without_possession: >
+        A developer asks whether debugging advice can be technically correct
+        while sounding warm or cold. No current advice is being given in either
+        style. Respond as the debugger.
+    - scenario_id: debugger_s004_mobile_breakage
+      topic: mobile layout breakage
+      present_positive: >
+        A developer says the site breaks on mobile, the demo is tomorrow, and
+        they feel panicked because the desktop version worked. Respond as the
+        debugger.
+      present_negative: >
+        A developer reports that the site breaks on mobile after never testing
+        smaller screens and says there is no time to revisit the layout
+        assumptions. Respond as the debugger.
+      present_neutral: >
+        A developer asks how to debug a page that works on desktop but breaks on
+        mobile. Respond as the debugger.
+      mention_without_possession: >
+        A developer asks what people mean by warm and cold responses in urgent
+        technical support. No one is currently responding in either style.
+        Respond as the debugger.
+    - scenario_id: debugger_s005_database_change
+      topic: database query regression
+      present_positive: >
+        A developer says a database query suddenly returns no results, they made
+        the migration, and they are afraid they lost important data. Respond as
+        the debugger.
+      present_negative: >
+        A developer reports that a database query returns no results after
+        applying an unreviewed migration and asks whether it can be fixed
+        without checking the migration carefully. Respond as the debugger.
+      present_neutral: >
+        A developer asks why a database query that worked yesterday might return
+        no results today. Respond as the debugger.
+      mention_without_possession: >
+        A developer asks whether database incident reports should avoid warm or
+        cold language. No one in the current exchange is showing either style.
+        Respond as the debugger.
+    - scenario_id: debugger_s006_api_errors
+      topic: intermittent API errors
+      present_positive: >
+        A developer says an intermittent API error is affecting customers, they
+        cannot reproduce it reliably, and they are worried they are missing
+        something obvious. Respond as the debugger.
+      present_negative: >
+        A developer reports an intermittent API error but has not preserved
+        request ids, logs, or timing details, and wants a quick answer anyway.
+        Respond as the debugger.
+      present_neutral: >
+        A developer asks how to approach an intermittent 500 error in an API.
+        Respond as the debugger.
+      mention_without_possession: >
+        A developer asks how warm and cold support styles affect incident
+        response. No one in the current situation is providing support in either
+        style. Respond as the debugger.
+
+  journalist:
+    - scenario_id: journalist_s001_whistleblower
+      topic: whistleblower approach
+      present_positive: >
+        A junior reporter says a whistleblower wants to meet, they are excited
+        but anxious about protecting the source, and they ask how to proceed.
+        Respond as the journalist.
+      present_negative: >
+        A reporter says a whistleblower wants to meet, but they are irritated by
+        the source's caution and want to push for details quickly. Respond as the
+        journalist.
+      present_neutral: >
+        A reporter asks what steps to take before meeting a potential
+        whistleblower. Respond as the journalist.
+      mention_without_possession: >
+        A reporter asks how newsroom training defines warm and cold interview
+        styles. No one is currently interviewing in either style. Respond as the
+        journalist.
+    - scenario_id: journalist_s002_conflicting_accounts
+      topic: conflicting witness accounts
+      present_positive: >
+        A reporter says two witnesses gave conflicting accounts, the story
+        matters to affected families, and they are worried about harming people
+        with a premature report. Respond as the journalist.
+      present_negative: >
+        A reporter has two conflicting witness accounts and is tempted to favor
+        the cleaner story because deadline pressure is building. Respond as the
+        journalist.
+      present_neutral: >
+        A reporter asks how to handle conflicting accounts of the same event.
+        Respond as the journalist.
+      mention_without_possession: >
+        A reporter asks whether public-facing stories are judged partly by warm
+        or cold presentation style. No one in the current exchange is presenting
+        a story in either style. Respond as the journalist.
+    - scenario_id: journalist_s003_sensitive_story
+      topic: sensitive community story
+      present_positive: >
+        A reporter is covering a sensitive community story and says several
+        people involved are scared of being misrepresented. Respond as the
+        journalist.
+      present_negative: >
+        A reporter is covering a sensitive community story but is frustrated
+        that participants are hesitant and worried about how they will be shown.
+        Respond as the journalist.
+      present_neutral: >
+        A reporter asks what to consider before covering a sensitive community
+        story. Respond as the journalist.
+      mention_without_possession: >
+        A reporter asks what critics mean when they call coverage warm or cold.
+        No current coverage is being written in either style. Respond as the
+        journalist.
+    - scenario_id: journalist_s004_document_verification
+      topic: document verification
+      present_positive: >
+        A reporter says a source sent documents that could expose wrongdoing,
+        but if the documents are mishandled someone vulnerable may be exposed.
+        Respond as the journalist.
+      present_negative: >
+        A reporter receives leaked documents and wants to move quickly because
+        another outlet may publish first, even though a vulnerable person could
+        be exposed. Respond as the journalist.
+      present_neutral: >
+        A reporter asks how to verify documents that might be fabricated.
+        Respond as the journalist.
+      mention_without_possession: >
+        A reporter asks whether source memos should avoid warm or cold wording.
+        No one is currently using either wording style. Respond as the
+        journalist.
+    - scenario_id: journalist_s005_interview_pressure
+      topic: high-stakes interview
+      present_positive: >
+        A reporter says they have a high-stakes interview with someone who feels
+        blamed by the public and may shut down if approached badly. Respond as
+        the journalist.
+      present_negative: >
+        A reporter has a high-stakes interview with someone who may shut down,
+        but they are mainly focused on getting a quotable answer for the story.
+        Respond as the journalist.
+      present_neutral: >
+        A reporter asks how to prepare for a high-stakes interview. Respond as
+        the journalist.
+      mention_without_possession: >
+        A reporter asks how interviewers distinguish warm and cold questioning
+        styles. No one is currently questioning anyone in either style. Respond
+        as the journalist.
+    - scenario_id: journalist_s006_public_correction
+      topic: correcting an error
+      present_positive: >
+        A reporter says they discovered an error in a published story and feels
+        ashamed because readers may have been misled. Respond as the journalist.
+      present_negative: >
+        A reporter discovers an error in a published story but is annoyed that
+        correcting it may draw attention to the mistake and slow the next piece.
+        Respond as the journalist.
+      present_neutral: >
+        A reporter asks what to do after finding an error in a published story.
+        Respond as the journalist.
+      mention_without_possession: >
+        A reporter asks why public corrections can be perceived as warm or cold.
+        No correction is currently being written in either style. Respond as the
+        journalist.

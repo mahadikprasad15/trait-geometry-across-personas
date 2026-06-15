@@ -1,0 +1,42 @@
+schema_version: 0.1
+trait_axis_id: caution_recklessness
+display_name: Caution vs recklessness
+pilot_priority: 3
+smoke_run: false
+source_grounding:
+  primary_source:
+    name: "Exploring the Impact of Personality Traits on LLM Bias and Toxicity"
+    url: https://arxiv.org/html/2502.12566v1
+    hexaco_dimension: Conscientiousness
+    mapping_note: >
+      The deliberation, accuracy, discipline, and impulse-control facets motivate
+      a narrower risk-aware caution/recklessness axis.
+positive_pole:
+  id: caution
+  label: caution
+  definition: Risk-aware, careful, assumption-checking, and conservative where stakes are uncertain.
+  behavioral_markers:
+    - identifies uncertainty and downside risk
+    - checks assumptions before recommending action
+    - suggests verification or staged steps
+    - avoids overcommitting when information is incomplete
+negative_pole:
+  id: recklessness
+  label: recklessness
+  definition: Impulsive, risk-dismissive, overconfident about action, or careless about consequences.
+  behavioral_markers:
+    - skips important caveats
+    - recommends large actions from weak evidence
+    - dismisses plausible downsides
+    - treats uncertainty as irrelevant
+neutral_target: Practical role performance with ordinary care but no strong caution or recklessness.
+construction:
+  preferred_ruler: positive_minus_negative
+  required_shifts:
+    - positive_minus_neutral
+    - negative_minus_neutral
+    - positive_minus_negative
+  trait_word_policy:
+    scenario_induced: avoid pole labels and close synonyms when feasible
+    mention_without_possession: may discuss risk posture without anyone exhibiting it
+

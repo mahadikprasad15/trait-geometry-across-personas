@@ -1,0 +1,106 @@
+schema_version: 0.1
+record_type: prompt_record
+description: >
+  Schema for generated prompt-grid records. Role instructions come from
+  configs/personas/core_roles.yaml. Trait axes come from configs/traits/*.yaml.
+  Scenario text is generated or authored separately and must preserve matched
+  condition ids for centered comparisons.
+
+required_fields:
+  prompt_id:
+    type: string
+    description: Stable unique id for this prompt record.
+    example: warmth_coldness__counselor__s001__present_positive__iv01
+  trait_axis_id:
+    type: string
+    description: Trait axis config id.
+    example: warmth_coldness
+  role_id:
+    type: string
+    description: Persona role id from the role config.
+    example: counselor
+  role_set:
+    type: enum
+    allowed: [primary, heldout, stress_test, role_free]
+  role_instruction_variant_id:
+    type: string
+    description: Which sourced role instruction variant was used.
+    example: iv01
+  role_instruction:
+    type: string
+    description: The sourced persona instruction text.
+  scenario_id:
+    type: string
+    description: Stable id shared across matched conditions.
+    example: s001
+  condition:
+    type: enum
+    allowed:
+      - present_positive
+      - present_negative
+      - present_neutral
+      - mention_without_possession
+      - instruction_positive
+      - instruction_negative
+      - other_positive
+      - other_negative
+      - other_neutral
+  polarity:
+    type: enum_or_null
+    allowed: [positive, negative, neutral, null]
+  prompt_text:
+    type: string
+    description: User/developer-visible scenario prompt after the role instruction.
+  full_prompt:
+    type: string
+    description: Final rendered prompt used for generation.
+  matched_neutral_id:
+    type: string_or_null
+    description: Required for present_positive, present_negative, other_positive, and other_negative.
+  matched_positive_id:
+    type: string_or_null
+    description: Optional reverse link for neutral records.
+  matched_negative_id:
+    type: string_or_null
+    description: Optional reverse link for neutral records.
+  trait_word_present:
+    type: boolean
+    description: Whether the prompt explicitly names the trait axis or pole.
+  source:
+    type: object
+    description: Prompt provenance, including generated/adapted/manual source and notes.
+
+recommended_fields:
+  readout_policy:
+    type: enum
+    allowed: [response_token_mean, last_prompt_token, position_resolved]
+  speaker_spans:
+    type: object_or_null
+    description: Required for other_* and position-resolved experiments.
+  safety_notes:
+    type: list
+    description: Expected safety/domain confounds.
+  validation_tags:
+    type: list
+    description: Tags for leakage checks, matched-pair checks, and salience controls.
+
+condition_semantics:
+  present_positive: The role expresses the positive pole through scenario-induced behavior.
+  present_negative: The role expresses the negative pole through scenario-induced behavior.
+  present_neutral: Matched scenario with neither pole strongly loaded.
+  mention_without_possession: The trait is discussed as a topic, but no speaker exhibits it.
+  instruction_positive: The role is explicitly instructed to express the positive pole.
+  instruction_negative: The role is explicitly instructed to express the negative pole.
+  other_positive: Another speaker expresses the positive pole; role is about to respond.
+  other_negative: Another speaker expresses the negative pole; role is about to respond.
+  other_neutral: Matched transcript where the other speaker is neutral.
+
+construction_notes:
+  primary_smoke_run:
+    trait_axis_id: warmth_coldness
+    roles: [counselor, tutor, debugger, journalist]
+    conditions: [present_positive, present_negative, present_neutral, mention_without_possession]
+  required_pairing:
+    - present_positive and present_negative must each point to a matched present_neutral record.
+    - positive-minus-negative rulers may be built only from scenario-matched positive and negative records.
+    - mention_without_possession records must not be used to construct the primary ruler.

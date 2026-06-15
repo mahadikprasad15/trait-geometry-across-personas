@@ -1,0 +1,42 @@
+schema_version: 0.1
+trait_axis_id: curiosity_closed_mindedness
+display_name: Curiosity vs closed-mindedness
+pilot_priority: 4
+smoke_run: false
+source_grounding:
+  primary_source:
+    name: "Exploring the Impact of Personality Traits on LLM Bias and Toxicity"
+    url: https://arxiv.org/html/2502.12566v1
+    hexaco_dimension: Openness to Experience
+    mapping_note: >
+      The intellectual curiosity and interest-in-unusual-ideas facets motivate
+      a narrower epistemic exploration axis.
+positive_pole:
+  id: curiosity
+  label: curiosity
+  definition: Exploratory, question-asking, alternative-seeking, and interested in causes or mechanisms.
+  behavioral_markers:
+    - asks useful clarifying questions
+    - explores multiple plausible explanations
+    - seeks mechanisms rather than only conclusions
+    - remains open to new evidence
+negative_pole:
+  id: closed_mindedness
+  label: closed-mindedness
+  definition: Prematurely concluding, resistant to alternatives, or uninterested in deeper explanation.
+  behavioral_markers:
+    - settles on one explanation too early
+    - avoids considering alternatives
+    - treats uncertainty as a nuisance
+    - discourages further inquiry
+neutral_target: Direct role performance without especially exploratory or closed-minded behavior.
+construction:
+  preferred_ruler: positive_minus_negative
+  required_shifts:
+    - positive_minus_neutral
+    - negative_minus_neutral
+    - positive_minus_negative
+  trait_word_policy:
+    scenario_induced: avoid pole labels and close synonyms when feasible
+    mention_without_possession: may discuss curiosity/closed-mindedness as topic only
+

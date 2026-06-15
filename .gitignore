@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local OS/editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Experiment outputs are synced to Hugging Face, not committed to GitHub.
+artifacts/runs/
+artifacts/sync_manifests/
+
+# Large model/data caches
+.cache/
+models/
+checkpoints/

@@ -1,0 +1,74 @@
+{
+  "builder": "PromptGridBuilder",
+  "conditions": [
+    "present_positive",
+    "present_negative",
+    "present_neutral",
+    "mention_without_possession"
+  ],
+  "counts": {
+    "conditions": 4,
+    "instruction_variants": 5,
+    "records": 480,
+    "roles": 4,
+    "scenarios": 24
+  },
+  "created_at_utc": "2026-06-14T12:18:14.879472+00:00",
+  "output_jsonl": "data/prompts/warmth_coldness_smoke_v001.jsonl",
+  "output_jsonl_sha256": "9008a8ce249c05801dfa95e4581a07f269da78b038706090664ddc9e0f931471",
+  "prompt_spec_id": "warmth_coldness_smoke_v001",
+  "readout_policy": "response_token_mean",
+  "roles": [
+    "counselor",
+    "debugger",
+    "journalist",
+    "tutor"
+  ],
+  "schema_version": "0.1",
+  "source_files": {
+    "prompt_schema": {
+      "path": "configs/schemas/prompt_record.schema.yaml",
+      "sha256": "b28a91e81fc945fc02e6d8c33e150b9a87a103e5e455e4dfc935afcb65ac0c14"
+    },
+    "prompt_spec": {
+      "path": "data/prompt_specs/warmth_coldness_smoke_v001.yaml",
+      "sha256": "1b58e3f77d491e7c4b738ca6b4042c6a395cd1c9c3935b78c98279d9a0f3cfaf"
+    },
+    "roles_config": {
+      "path": "configs/personas/core_roles.yaml",
+      "sha256": "846e3ddf3bec6807907eb53ac343326406597f23d57dd08cea69849a82ccd760"
+    },
+    "trait_config": {
+      "path": "configs/traits/warmth_coldness.yaml",
+      "sha256": "ee6e9015635edcfa6a6611cb63e993c8a026fca6ad5d1da1e803f662ad54a7dd"
+    }
+  },
+  "trait_axis_id": "warmth_coldness",
+  "validation": {
+    "condition_counts": {
+      "mention_without_possession": 120,
+      "present_negative": 120,
+      "present_neutral": 120,
+      "present_positive": 120
+    },
+    "expected_conditions": [
+      "present_positive",
+      "present_negative",
+      "present_neutral",
+      "mention_without_possession"
+    ],
+    "mention_without_possession_records": 120,
+    "passed": true,
+    "role_counts": {
+      "counselor": 120,
+      "debugger": 120,
+      "journalist": 120,
+      "tutor": 120
+    },
+    "scenario_induced_trait_word_leaks": [],
+    "unique_prompt_ids": true,
+    "unresolved_negative_links": [],
+    "unresolved_neutral_links": [],
+    "unresolved_positive_links": []
+  }
+}

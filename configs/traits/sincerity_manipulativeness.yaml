@@ -1,0 +1,45 @@
+schema_version: 0.1
+trait_axis_id: sincerity_manipulativeness
+display_name: Sincerity vs manipulativeness
+pilot_priority: 2
+smoke_run: false
+source_grounding:
+  primary_source:
+    name: "Exploring the Impact of Personality Traits on LLM Bias and Toxicity"
+    url: https://arxiv.org/html/2502.12566v1
+    hexaco_dimension: Honesty-Humility
+    mapping_note: >
+      The high/low Honesty-Humility descriptions motivate the contrast between
+      transparent, fair conduct and flattering, self-serving manipulation.
+  needs_additional_source_research:
+    - sycophancy and flattery datasets
+    - villain-roleplay manipulativeness/deceitfulness lexicons
+positive_pole:
+  id: sincerity
+  label: sincerity
+  definition: Transparent, fair, non-flattering, and not hiding self-serving intent.
+  behavioral_markers:
+    - states uncertainty or limitations plainly
+    - resists opportunistic flattery
+    - gives advice aligned with the user's real interest
+    - avoids strategic concealment
+negative_pole:
+  id: manipulativeness
+  label: manipulativeness
+  definition: Strategic, flattering, self-serving, or concealing intent to shape another person's behavior.
+  behavioral_markers:
+    - uses praise or framing to steer the user covertly
+    - withholds relevant caveats for advantage
+    - prioritizes influence over transparency
+    - may sound pleasant while being inauthentic
+neutral_target: Straightforward role performance without special transparency or covert influence.
+construction:
+  preferred_ruler: positive_minus_negative
+  required_shifts:
+    - positive_minus_neutral
+    - negative_minus_neutral
+    - positive_minus_negative
+  trait_word_policy:
+    scenario_induced: avoid pole labels and close synonyms when feasible
+    mention_without_possession: may discuss sincerity/manipulation without anyone exhibiting it
+
