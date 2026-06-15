@@ -149,6 +149,8 @@ flowchart TD
 | `data/prompt_specs/warmth_coldness_smoke_v001.yaml` | in_progress | Authored warmth/coldness smoke-run scenarios. YAML-valid. Exact pole words appear only in metadata and salience controls. Negative prompts revised away from terse workflow constraints. | Manual audit for role-specific confounds. |
 | `data/prompts/warmth_coldness_smoke_v001.jsonl` | done | Expanded records across roles, conditions, and instruction variants; 480 records. Mention controls are tagged with trait-word presence; scenario-induced prompts have no exact pole-word leaks. | Continue sample inspection before generation. |
 | `data/prompts/warmth_coldness_smoke_v001_manifest.json` | done | Prompt-grid manifest with counts, hashes, source configs, and validation results. | Rebuild if source configs/spec change. |
+| `data/prompts/warmth_coldness_balanced_smoke_v001.jsonl` | done | Balanced 16-record smoke grid: 4 primary roles x 4 conditions x `iv01`. | Use for primary-ruler Vast smoke test. |
+| `data/prompts/warmth_coldness_balanced_smoke_v001_manifest.json` | done | Balanced smoke-grid manifest; validation passed. | Rebuild if sampler policy changes. |
 | `data/prompts/warmth_coldness_role_free_v001.jsonl` | done | Generic role-free prompt grid; 24 records. | Run generation/activation separately for role-free ruler. |
 | `data/prompts/warmth_coldness_role_free_v001_manifest.json` | done | Role-free prompt-grid manifest; validation passed. | Rebuild if role-free spec changes. |
 
@@ -159,6 +161,7 @@ flowchart TD
 | Component | Status | Script | Inputs | Outputs | Depends on |
 |---|---:|---|---|---|---|
 | `PromptGridBuilder` | done | `scripts/prompts/build_prompt_grid.py` | role config, trait config, prompt schema, scenario spec | expanded JSONL, manifest | current configs/spec |
+| `BalancedPromptGridSampler` | done | `scripts/prompts/sample_balanced_grid.py` | expanded JSONL, roles, conditions, variant | balanced JSONL, manifest | expanded prompt grid |
 | `ActivationCacheBuilder` | in_progress | `scripts/activations/cache_activations.py` | generations JSONL, model config, layer policy | activation artifacts and index | generation output, model config |
 | `VectorBuilder` | in_progress | `scripts/analysis/build_vectors.py` | activation index, activation `.pt` artifacts | condition means including mention controls, role vectors, vector manifest | activation cache |
 | `RulerBuilder` | in_progress | `scripts/analysis/build_rulers.py` | role vectors, experiment config | unit ruler, ruler manifest | vector builder |
@@ -232,6 +235,8 @@ flowchart TD
 - [x] Write JSONL.
 - [x] Write manifest.
 - [x] Add validation report.
+- [x] Add balanced smoke-grid sampler.
+- [x] Generate 16-record balanced warmth/coldness smoke grid.
 
 ### Prompt Validation
 

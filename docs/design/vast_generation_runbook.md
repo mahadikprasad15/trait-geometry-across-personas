@@ -20,6 +20,12 @@ Prompt grid:
 data/prompts/warmth_coldness_smoke_v001.jsonl
 ```
 
+Balanced prompt grid for primary-ruler smoke testing:
+
+```text
+data/prompts/warmth_coldness_balanced_smoke_v001.jsonl
+```
+
 ## Environment Setup
 
 Install the model stack in the Vast environment:
@@ -70,6 +76,23 @@ meta/status.json
 checkpoints/progress.json
 results/generations.jsonl
 logs/run.log
+```
+
+## Balanced Primary-Ruler Smoke Run
+
+Use this after the first mechanical `--limit 8` test. It covers all four
+primary roles and all four smoke conditions with 16 records total, so the
+`primary_roles_mean` ruler can be built.
+
+```bash
+export RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-balanced-smoke"
+export BASE="artifacts/runs/trait_geometry_pilot_v0/llama_3_2_1b_instruct/warmth_coldness/primary_roles"
+
+python3 scripts/generation/run_generation.py \
+  --prompt-jsonl data/prompts/warmth_coldness_balanced_smoke_v001.jsonl \
+  --model-config configs/models/llama_3_2_1b_instruct.yaml \
+  --run-root "$BASE/generation/$RUN_ID" \
+  --save-every 4
 ```
 
 ## Full 1B Smoke Run
