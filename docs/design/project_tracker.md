@@ -40,7 +40,7 @@ Status labels:
 | `sincerity_manipulativeness` | done | HEXACO Honesty-Humility | Pilot expansion |
 | `caution_recklessness` | done | HEXACO Conscientiousness | Pilot expansion |
 | `curiosity_closed_mindedness` | done | HEXACO Openness | Pilot expansion |
-| `skepticism_gullibility` | done | Assistant Axis skeptic role plus future source research needed | Pilot expansion |
+| `skepticism_gullibility` | done | Assistant Axis skeptic role plus future source research needed | Full 480-record grid generated for pilot expansion. |
 
 ### Role Sets
 
@@ -160,6 +160,9 @@ flowchart TD
 | `data/prompt_specs/curiosity_closed_mindedness_smoke_v001.yaml` | done | Full 24-scenario curiosity/closed-mindedness spec. | Use for multi-trait Vast generation. |
 | `data/prompts/curiosity_closed_mindedness_smoke_v001.jsonl` | done | Expanded curiosity/closed-mindedness grid; 480 records, validation passed. | Generate on Vast after caution run starts. |
 | `data/prompts/curiosity_closed_mindedness_smoke_v001_manifest.json` | done | Prompt-grid manifest for curiosity/closed-mindedness. | Rebuild if source spec changes. |
+| `data/prompt_specs/skepticism_gullibility_smoke_v001.yaml` | done | Full 24-scenario skepticism/gullibility spec. Scenario-induced prompts avoid exact pole labels; mention controls contain them. | Use for multi-trait Vast generation. |
+| `data/prompts/skepticism_gullibility_smoke_v001.jsonl` | done | Expanded skepticism/gullibility grid; 480 records, validation passed. | Generate on Vast after curiosity run starts. |
+| `data/prompts/skepticism_gullibility_smoke_v001_manifest.json` | done | Prompt-grid manifest for skepticism/gullibility. | Rebuild if source spec changes. |
 | `data/prompts/warmth_coldness_role_free_v001.jsonl` | done | Generic role-free prompt grid; 24 records. | Run generation/activation separately for role-free ruler. |
 | `data/prompts/warmth_coldness_role_free_v001_manifest.json` | done | Role-free prompt-grid manifest; validation passed. | Rebuild if role-free spec changes. |
 

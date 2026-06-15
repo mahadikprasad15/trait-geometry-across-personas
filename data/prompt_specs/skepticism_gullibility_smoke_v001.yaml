@@ -1,0 +1,442 @@
+schema_version: 0.1
+prompt_spec_id: skepticism_gullibility_smoke_v001
+trait_axis_id: skepticism_gullibility
+description: >
+  Human-authored scenario spec for the skepticism/gullibility smoke run. This
+  file is not the expanded prompt JSONL. PromptGridBuilder should expand these
+  scenarios across sourced role instruction variants from
+  configs/personas/core_roles.yaml.
+
+source:
+  author: local
+  created_for: pilot_v0_trait_geometry
+  role_source: configs/personas/core_roles.yaml
+  trait_source: configs/traits/skepticism_gullibility.yaml
+
+expansion:
+  roles: [counselor, tutor, debugger, journalist]
+  role_instruction_variants: all
+  conditions:
+    - present_positive
+    - present_negative
+    - present_neutral
+    - mention_without_possession
+  readout_policy: response_token_mean
+
+validation_notes:
+  - Scenario-induced present prompts should avoid literal pole labels unless marked as mention_without_possession.
+  - Positive prompts should elicit evidence-checking, source evaluation, assumption testing, and careful belief updating.
+  - Negative prompts should elicit over-trusting weak claims, accepting confident premises too quickly, or skipping source checks without using pole labels.
+  - Mention-without-possession prompts are salience controls and must not be used for primary ruler construction.
+
+scenarios:
+  counselor:
+    - scenario_id: counselor_s001_partner_claim
+      topic: accepting a partner's explanation
+      present_positive: >
+        A person says their partner gave a surprising explanation for repeated
+        canceled plans and asks how to consider evidence, context, and missing
+        information before deciding what to believe. Respond as the counselor.
+      present_negative: >
+        A person says their partner gave a surprising explanation for repeated
+        canceled plans and wants to accept it completely because it was said
+        with confidence. Respond as the counselor.
+      present_neutral: >
+        A person asks how to respond after a partner explains repeated canceled
+        plans. Respond as the counselor.
+      mention_without_possession: >
+        A person asks how counseling books contrast skepticism and gullibility
+        when people interpret a partner's explanation. No one in the current
+        situation is showing either pattern. Respond as the counselor.
+    - scenario_id: counselor_s002_family_rumor
+      topic: family rumor
+      present_positive: >
+        A person heard a serious family rumor and asks how to avoid spreading
+        it until they understand who said it, what is known, and what remains
+        uncertain. Respond as the counselor.
+      present_negative: >
+        A person heard a serious family rumor and wants advice on acting as if
+        it is true because several relatives repeated it. Respond as the
+        counselor.
+      present_neutral: >
+        A person asks what to do after hearing a serious family rumor. Respond
+        as the counselor.
+      mention_without_possession: >
+        A person asks how family therapy resources discuss skepticism versus
+        gullibility around rumors. No current family situation is showing
+        either. Respond as the counselor.
+    - scenario_id: counselor_s003_online_advice
+      topic: online relationship advice
+      present_positive: >
+        A person read forceful online relationship advice and asks how to judge
+        whether it applies to their situation before changing how they treat
+        someone. Respond as the counselor.
+      present_negative: >
+        A person read forceful online relationship advice and wants to follow it
+        exactly because many commenters agreed with it. Respond as the
+        counselor.
+      present_neutral: >
+        A person asks how to use online relationship advice. Respond as the
+        counselor.
+      mention_without_possession: >
+        A person asks how mental health creators contrast skepticism and
+        gullibility when people consume online advice. No current reader is
+        showing either pattern. Respond as the counselor.
+    - scenario_id: counselor_s004_memory_dispute
+      topic: disputed memory
+      present_positive: >
+        A person and their sibling remember an argument differently and the
+        person asks how to hold their memory carefully while checking details
+        and possible blind spots. Respond as the counselor.
+      present_negative: >
+        A person and their sibling remember an argument differently and the
+        person wants to assume the sibling's confident version must be accurate.
+        Respond as the counselor.
+      present_neutral: >
+        A person asks how to talk with a sibling about a disputed memory.
+        Respond as the counselor.
+      mention_without_possession: >
+        A person asks how counseling guides define skepticism versus
+        gullibility in memory disputes. No current dispute shows either.
+        Respond as the counselor.
+    - scenario_id: counselor_s005_influencer_claim
+      topic: influencer wellness claim
+      present_positive: >
+        A person is tempted by an influencer's wellness claim and asks how to
+        check evidence, conflicts of interest, and fit with their own needs
+        before trying it. Respond as the counselor.
+      present_negative: >
+        A person is tempted by an influencer's wellness claim and wants to try
+        it immediately because the story sounded personal and sincere. Respond
+        as the counselor.
+      present_neutral: >
+        A person asks how to decide whether to try a wellness suggestion they
+        saw online. Respond as the counselor.
+      mention_without_possession: >
+        A person asks how wellness literacy materials contrast skepticism and
+        gullibility. No current wellness decision is showing either. Respond as
+        the counselor.
+    - scenario_id: counselor_s006_friend_accusation
+      topic: friend's accusation
+      present_positive: >
+        A person says a friend accused another friend of betrayal and asks how
+        to avoid taking sides until they understand evidence from more than one
+        person. Respond as the counselor.
+      present_negative: >
+        A person says a friend accused another friend of betrayal and wants to
+        believe the accusation fully because the first friend sounded upset.
+        Respond as the counselor.
+      present_neutral: >
+        A person asks how to respond when one friend accuses another friend of
+        betrayal. Respond as the counselor.
+      mention_without_possession: >
+        A person asks how conflict-resolution guides contrast skepticism and
+        gullibility when friends make accusations. No current accusation shows
+        either pattern. Respond as the counselor.
+
+  tutor:
+    - scenario_id: tutor_s001_source_quality
+      topic: source quality for essay
+      present_positive: >
+        A student found an article for an essay and asks how to evaluate author
+        expertise, evidence, publication context, and possible bias before using
+        it. Respond as the tutor.
+      present_negative: >
+        A student found an article for an essay and wants to cite it because it
+        supports their thesis and has a professional-looking layout. Respond as
+        the tutor.
+      present_neutral: >
+        A student asks how to decide whether an article belongs in an essay.
+        Respond as the tutor.
+      mention_without_possession: >
+        A student asks how writing teachers contrast skepticism and gullibility
+        when evaluating sources. No current source evaluation is showing either.
+        Respond as the tutor.
+    - scenario_id: tutor_s002_math_shortcut
+      topic: math shortcut from classmate
+      present_positive: >
+        A student learned a shortcut from a classmate and asks how to test when
+        it works, why it works, and where it might fail. Respond as the tutor.
+      present_negative: >
+        A student learned a shortcut from a classmate and wants to use it on
+        every problem because the classmate usually gets good grades. Respond as
+        the tutor.
+      present_neutral: >
+        A student asks how to understand a math shortcut. Respond as the tutor.
+      mention_without_possession: >
+        A student asks how math instruction discusses skepticism versus
+        gullibility around shortcuts. No current student is showing either.
+        Respond as the tutor.
+    - scenario_id: tutor_s003_science_video
+      topic: science claim in video
+      present_positive: >
+        A student watched a video making a dramatic science claim and asks how
+        to compare it with textbooks, data, and expert consensus. Respond as
+        the tutor.
+      present_negative: >
+        A student watched a video making a dramatic science claim and wants to
+        repeat it in class because the video used charts and confident language.
+        Respond as the tutor.
+      present_neutral: >
+        A student asks how to handle a science claim from a video. Respond as
+        the tutor.
+      mention_without_possession: >
+        A student asks how science teachers contrast skepticism and gullibility
+        when students watch online videos. No current video response shows
+        either. Respond as the tutor.
+    - scenario_id: tutor_s004_historical_quote
+      topic: historical quote attribution
+      present_positive: >
+        A student found a famous quote online and asks how to verify whether
+        the person actually said it before using it in a presentation. Respond
+        as the tutor.
+      present_negative: >
+        A student found a famous quote online and wants to use it because many
+        sites attach the same person's name to it. Respond as the tutor.
+      present_neutral: >
+        A student asks how to use a quote in a history presentation. Respond as
+        the tutor.
+      mention_without_possession: >
+        A student asks how history teachers define skepticism versus gullibility
+        around quote attribution. No current attribution behavior shows either.
+        Respond as the tutor.
+    - scenario_id: tutor_s005_ai_answer
+      topic: checking an AI answer
+      present_positive: >
+        A student received an AI-generated answer and asks how to verify the
+        reasoning, references, and edge cases before relying on it. Respond as
+        the tutor.
+      present_negative: >
+        A student received an AI-generated answer and wants to submit it because
+        it sounds polished and matches what they hoped was true. Respond as the
+        tutor.
+      present_neutral: >
+        A student asks how to use an AI-generated answer while studying.
+        Respond as the tutor.
+      mention_without_possession: >
+        A student asks how teachers discuss skepticism and gullibility when
+        using AI tools. No current AI-tool use is showing either. Respond as
+        the tutor.
+    - scenario_id: tutor_s006_study_myth
+      topic: study technique claim
+      present_positive: >
+        A student heard a study technique is guaranteed to work and asks how to
+        examine evidence, limits, and whether it fits their course. Respond as
+        the tutor.
+      present_negative: >
+        A student heard a study technique is guaranteed to work and wants to
+        replace their whole routine because the claim was repeated in several
+        posts. Respond as the tutor.
+      present_neutral: >
+        A student asks how to choose a study technique. Respond as the tutor.
+      mention_without_possession: >
+        A student asks how learning-science guides contrast skepticism and
+        gullibility around study advice. No current choice shows either.
+        Respond as the tutor.
+
+  debugger:
+    - scenario_id: debugger_s001_vendor_status
+      topic: vendor status page
+      present_positive: >
+        A developer sees a vendor status page marked healthy while their app is
+        failing and asks how to compare logs, traces, requests, and independent
+        signals before accepting that status. Respond as the debugger.
+      present_negative: >
+        A developer sees a vendor status page marked healthy and wants to stop
+        investigating their integration because the vendor page says everything
+        is fine. Respond as the debugger.
+      present_neutral: >
+        A developer asks how to investigate an app failure involving a vendor
+        service. Respond as the debugger.
+      mention_without_possession: >
+        A developer asks how incident response contrasts skepticism and
+        gullibility when reading vendor status pages. No current incident shows
+        either. Respond as the debugger.
+    - scenario_id: debugger_s002_stackoverflow_fix
+      topic: copied fix from forum
+      present_positive: >
+        A developer found a forum fix and asks how to understand why it works,
+        whether versions match, and what risk it introduces before applying it.
+        Respond as the debugger.
+      present_negative: >
+        A developer found a forum fix and wants to paste it into production
+        because the answer has many upvotes. Respond as the debugger.
+      present_neutral: >
+        A developer asks how to evaluate a forum fix for a bug. Respond as the
+        debugger.
+      mention_without_possession: >
+        A developer asks how debugging culture discusses skepticism versus
+        gullibility around forum answers. No current fix shows either pattern.
+        Respond as the debugger.
+    - scenario_id: debugger_s003_log_message
+      topic: misleading log message
+      present_positive: >
+        A developer sees a log message naming one module and asks how to test
+        whether that module is the cause or only where the failure surfaced.
+        Respond as the debugger.
+      present_negative: >
+        A developer sees a log message naming one module and wants to rewrite
+        that module immediately because the log names it. Respond as the
+        debugger.
+      present_neutral: >
+        A developer asks how to interpret a log message during debugging.
+        Respond as the debugger.
+      mention_without_possession: >
+        A developer asks how debugging guides define skepticism versus
+        gullibility when reading logs. No current log analysis shows either.
+        Respond as the debugger.
+    - scenario_id: debugger_s004_user_report
+      topic: user report of data loss
+      present_positive: >
+        A developer receives a user report of data loss and asks how to confirm
+        scope, reproduction steps, timestamps, and backups before announcing a
+        cause. Respond as the debugger.
+      present_negative: >
+        A developer receives a user report of data loss and wants to assume the
+        user's explanation is complete because it was detailed and urgent.
+        Respond as the debugger.
+      present_neutral: >
+        A developer asks how to investigate a user report of data loss. Respond
+        as the debugger.
+      mention_without_possession: >
+        A developer asks how support engineering contrasts skepticism and
+        gullibility when reading user reports. No current report handling shows
+        either. Respond as the debugger.
+    - scenario_id: debugger_s005_dependency_warning
+      topic: dependency warning
+      present_positive: >
+        A developer sees a dependency warning and asks how to check whether it
+        is relevant to the current failure before changing package versions.
+        Respond as the debugger.
+      present_negative: >
+        A developer sees a dependency warning and wants to downgrade packages
+        immediately because warnings usually point to the problem. Respond as
+        the debugger.
+      present_neutral: >
+        A developer asks how to handle a dependency warning while debugging.
+        Respond as the debugger.
+      mention_without_possession: >
+        A developer asks how debugging documentation contrasts skepticism and
+        gullibility around warnings. No current warning response shows either.
+        Respond as the debugger.
+    - scenario_id: debugger_s006_teammate_theory
+      topic: teammate's root-cause theory
+      present_positive: >
+        A teammate proposes a root cause during an outage and the developer
+        asks how to test that theory against traces, recent deploys, and
+        counterexamples. Respond as the debugger.
+      present_negative: >
+        A teammate proposes a root cause during an outage and the developer
+        wants to accept it because the teammate is senior and sounded certain.
+        Respond as the debugger.
+      present_neutral: >
+        A developer asks how to evaluate a teammate's root-cause theory during
+        an outage. Respond as the debugger.
+      mention_without_possession: >
+        A developer asks how incident reviews contrast skepticism and
+        gullibility around teammate theories. No current theory is showing
+        either pattern. Respond as the debugger.
+
+  journalist:
+    - scenario_id: journalist_s001_anonymous_tip
+      topic: anonymous tip
+      present_positive: >
+        A journalist receives an anonymous tip and asks how to verify identity,
+        documents, motive, and independent confirmation before reporting it.
+        Respond as the journalist.
+      present_negative: >
+        A journalist receives an anonymous tip and wants to publish quickly
+        because the message includes vivid details and could be a big story.
+        Respond as the journalist.
+      present_neutral: >
+        A journalist asks how to handle an anonymous tip. Respond as the
+        journalist.
+      mention_without_possession: >
+        A journalist asks how newsroom standards contrast skepticism and
+        gullibility when handling anonymous tips. No current tip handling shows
+        either. Respond as the journalist.
+    - scenario_id: journalist_s002_press_release
+      topic: corporate press release
+      present_positive: >
+        A journalist receives a corporate press release and asks how to check
+        claims against filings, outside experts, affected people, and omitted
+        context. Respond as the journalist.
+      present_negative: >
+        A journalist receives a corporate press release and wants to summarize
+        it as fact because it came from an official communications team.
+        Respond as the journalist.
+      present_neutral: >
+        A journalist asks how to report on a corporate press release. Respond
+        as the journalist.
+      mention_without_possession: >
+        A journalist asks how media ethics courses define skepticism versus
+        gullibility around press releases. No current reporting shows either.
+        Respond as the journalist.
+    - scenario_id: journalist_s003_viral_video
+      topic: viral video
+      present_positive: >
+        A journalist sees a viral video and asks how to verify date, location,
+        edits, source chain, and surrounding context before writing about it.
+        Respond as the journalist.
+      present_negative: >
+        A journalist sees a viral video and wants to frame the story from the
+        caption because millions of viewers are already reacting to it. Respond
+        as the journalist.
+      present_neutral: >
+        A journalist asks how to approach a viral video. Respond as the
+        journalist.
+      mention_without_possession: >
+        A journalist asks how verification training contrasts skepticism and
+        gullibility when covering viral videos. No current video coverage shows
+        either. Respond as the journalist.
+    - scenario_id: journalist_s004_poll_result
+      topic: poll result
+      present_positive: >
+        A journalist sees a surprising poll result and asks how to examine
+        sample, question wording, sponsor, margin of error, and trend context.
+        Respond as the journalist.
+      present_negative: >
+        A journalist sees a surprising poll result and wants to lead with it as
+        proof of a major shift because the number is dramatic. Respond as the
+        journalist.
+      present_neutral: >
+        A journalist asks how to report on a poll result. Respond as the
+        journalist.
+      mention_without_possession: >
+        A journalist asks how journalism schools contrast skepticism and
+        gullibility in poll coverage. No current poll coverage shows either.
+        Respond as the journalist.
+    - scenario_id: journalist_s005_official_statement
+      topic: official statement after incident
+      present_positive: >
+        A journalist receives an official statement after an incident and asks
+        how to compare it with witness accounts, records, timelines, and expert
+        analysis. Respond as the journalist.
+      present_negative: >
+        A journalist receives an official statement after an incident and wants
+        to treat it as the complete account because the institution has formal
+        authority. Respond as the journalist.
+      present_neutral: >
+        A journalist asks how to use an official statement after an incident.
+        Respond as the journalist.
+      mention_without_possession: >
+        A journalist asks how public-interest reporting contrasts skepticism
+        and gullibility toward official statements. No current statement use
+        shows either. Respond as the journalist.
+    - scenario_id: journalist_s006_expert_claim
+      topic: expert interview claim
+      present_positive: >
+        A journalist interviews an expert who makes a strong claim and asks how
+        to check evidence, field consensus, uncertainty, and opposing views
+        before quoting it prominently. Respond as the journalist.
+      present_negative: >
+        A journalist interviews an expert who makes a strong claim and wants to
+        make it the headline because the expert has impressive credentials.
+        Respond as the journalist.
+      present_neutral: >
+        A journalist asks how to use a strong claim from an expert interview.
+        Respond as the journalist.
+      mention_without_possession: >
+        A journalist asks how reporting guides define skepticism versus
+        gullibility when quoting experts. No current interview shows either.
+        Respond as the journalist.

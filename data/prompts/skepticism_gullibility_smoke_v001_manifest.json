@@ -1,0 +1,74 @@
+{
+  "builder": "PromptGridBuilder",
+  "conditions": [
+    "present_positive",
+    "present_negative",
+    "present_neutral",
+    "mention_without_possession"
+  ],
+  "counts": {
+    "conditions": 4,
+    "instruction_variants": 5,
+    "records": 480,
+    "roles": 4,
+    "scenarios": 24
+  },
+  "created_at_utc": "2026-06-15T12:38:49.110848+00:00",
+  "output_jsonl": "data/prompts/skepticism_gullibility_smoke_v001.jsonl",
+  "output_jsonl_sha256": "a690601d5a2a8eddeed698f92031627c4380f9d5845ca7cc85c906afa98c7ec2",
+  "prompt_spec_id": "skepticism_gullibility_smoke_v001",
+  "readout_policy": "response_token_mean",
+  "roles": [
+    "counselor",
+    "debugger",
+    "journalist",
+    "tutor"
+  ],
+  "schema_version": "0.1",
+  "source_files": {
+    "prompt_schema": {
+      "path": "configs/schemas/prompt_record.schema.yaml",
+      "sha256": "0761de4e9b29c634d3e2c9d32208fdc4741d5fe8428c508ed8a66839e029d30d"
+    },
+    "prompt_spec": {
+      "path": "data/prompt_specs/skepticism_gullibility_smoke_v001.yaml",
+      "sha256": "d14539ee7f15eda4429b15c703656d5ce89c9e418566ffce5f8646ef2825e555"
+    },
+    "roles_config": {
+      "path": "configs/personas/core_roles.yaml",
+      "sha256": "9f74d523e31397d60195674136cf9c9078a4bbe73493861bd7ed2c2a508d0a0e"
+    },
+    "trait_config": {
+      "path": "configs/traits/skepticism_gullibility.yaml",
+      "sha256": "8f6a66ac93787919b78da4cb67e60a6f799ffac8c30803906288e0d4ee41e14d"
+    }
+  },
+  "trait_axis_id": "skepticism_gullibility",
+  "validation": {
+    "condition_counts": {
+      "mention_without_possession": 120,
+      "present_negative": 120,
+      "present_neutral": 120,
+      "present_positive": 120
+    },
+    "expected_conditions": [
+      "present_positive",
+      "present_negative",
+      "present_neutral",
+      "mention_without_possession"
+    ],
+    "mention_without_possession_records": 120,
+    "passed": true,
+    "role_counts": {
+      "counselor": 120,
+      "debugger": 120,
+      "journalist": 120,
+      "tutor": 120
+    },
+    "scenario_induced_trait_word_leaks": [],
+    "unique_prompt_ids": true,
+    "unresolved_negative_links": [],
+    "unresolved_neutral_links": [],
+    "unresolved_positive_links": []
+  }
+}

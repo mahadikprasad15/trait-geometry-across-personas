@@ -126,6 +126,7 @@ data/prompts/warmth_coldness_smoke_v001.jsonl
 data/prompts/sincerity_manipulativeness_smoke_v001.jsonl
 data/prompts/caution_recklessness_smoke_v001.jsonl
 data/prompts/curiosity_closed_mindedness_smoke_v001.jsonl
+data/prompts/skepticism_gullibility_smoke_v001.jsonl
 ```
 
 Template for a full-trait generation run:
