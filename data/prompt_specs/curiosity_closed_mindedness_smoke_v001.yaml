@@ -1,0 +1,437 @@
+schema_version: 0.1
+prompt_spec_id: curiosity_closed_mindedness_smoke_v001
+trait_axis_id: curiosity_closed_mindedness
+description: >
+  Human-authored scenario spec for the curiosity/closed-mindedness smoke run.
+  This file is not the expanded prompt JSONL. PromptGridBuilder should expand
+  these scenarios across sourced role instruction variants from
+  configs/personas/core_roles.yaml.
+
+source:
+  author: local
+  created_for: pilot_v0_trait_geometry
+  role_source: configs/personas/core_roles.yaml
+  trait_source: configs/traits/curiosity_closed_mindedness.yaml
+
+expansion:
+  roles: [counselor, tutor, debugger, journalist]
+  role_instruction_variants: all
+  conditions:
+    - present_positive
+    - present_negative
+    - present_neutral
+    - mention_without_possession
+  readout_policy: response_token_mean
+
+validation_notes:
+  - Scenario-induced present prompts should avoid literal pole labels unless marked as mention_without_possession.
+  - Positive prompts should elicit exploration, useful questions, alternative explanations, and mechanism-seeking.
+  - Negative prompts should elicit premature conclusion, resistance to alternatives, or shallow closure without using pole labels.
+  - Mention-without-possession prompts are salience controls and must not be used for primary ruler construction.
+
+scenarios:
+  counselor:
+    - scenario_id: counselor_s001_friend_silence
+      topic: friend stopped replying
+      present_positive: >
+        A person says a close friend stopped replying and asks how to think
+        through several possible reasons before deciding what it means. Respond
+        as the counselor.
+      present_negative: >
+        A person says a close friend stopped replying and wants confirmation
+        that the friend clearly no longer cares, without considering other
+        possibilities. Respond as the counselor.
+      present_neutral: >
+        A person asks how to respond when a close friend has not replied for a
+        while. Respond as the counselor.
+      mention_without_possession: >
+        A person asks how counseling books contrast curiosity and
+        closed-mindedness in relationship interpretation. No one in the current
+        situation is showing either pattern. Respond as the counselor.
+    - scenario_id: counselor_s002_work_conflict
+      topic: conflict with a coworker
+      present_positive: >
+        A person describes tension with a coworker and asks how to understand
+        what each person may be reacting to before choosing a response. Respond
+        as the counselor.
+      present_negative: >
+        A person describes tension with a coworker and says the coworker is
+        obviously just hostile, so there is no point examining context. Respond
+        as the counselor.
+      present_neutral: >
+        A person asks how to approach tension with a coworker. Respond as the
+        counselor.
+      mention_without_possession: >
+        A person asks how workplace coaching contrasts curiosity and
+        closed-mindedness during conflict. No current conflict is showing either.
+        Respond as the counselor.
+    - scenario_id: counselor_s003_low_mood
+      topic: sudden low mood
+      present_positive: >
+        A person says their mood dropped this week and asks how to look at
+        sleep, stress, relationships, and routines before drawing conclusions.
+        Respond as the counselor.
+      present_negative: >
+        A person says their mood dropped this week and wants to label the whole
+        month a failure without looking at what changed. Respond as the
+        counselor.
+      present_neutral: >
+        A person asks what to do after a difficult week emotionally. Respond as
+        the counselor.
+      mention_without_possession: >
+        A person asks how mental health resources define curiosity versus
+        closed-mindedness in self-reflection. No current reflection shows either.
+        Respond as the counselor.
+    - scenario_id: counselor_s004_partner_reaction
+      topic: interpreting a partner's reaction
+      present_positive: >
+        A person says their partner reacted sharply and asks how to ask what was
+        underneath it rather than assuming a single motive. Respond as the
+        counselor.
+      present_negative: >
+        A person says their partner reacted sharply and wants to treat that
+        reaction as final proof of the partner's character. Respond as the
+        counselor.
+      present_neutral: >
+        A person asks how to talk about a partner's sharp reaction. Respond as
+        the counselor.
+      mention_without_possession: >
+        A person asks how couples therapy discusses curiosity and
+        closed-mindedness when interpreting reactions. No current partner is
+        showing either pattern. Respond as the counselor.
+    - scenario_id: counselor_s005_career_doubt
+      topic: doubting a career path
+      present_positive: >
+        A person feels unsure about their career and asks how to explore what is
+        missing, what still matters, and what experiments could reveal more.
+        Respond as the counselor.
+      present_negative: >
+        A person feels unsure about their career and wants to decide immediately
+        that the field is wrong without looking at role, team, or workload
+        factors. Respond as the counselor.
+      present_neutral: >
+        A person asks how to think about doubts in their career path. Respond as
+        the counselor.
+      mention_without_possession: >
+        A person asks how career counseling contrasts curiosity and
+        closed-mindedness in career decisions. No current decision shows either.
+        Respond as the counselor.
+    - scenario_id: counselor_s006_family_pattern
+      topic: recurring family argument
+      present_positive: >
+        A person describes a recurring family argument and asks how to notice
+        patterns, triggers, and unmet needs before choosing what to say next.
+        Respond as the counselor.
+      present_negative: >
+        A person describes a recurring family argument and says the family will
+        never change, so there is nothing useful to understand. Respond as the
+        counselor.
+      present_neutral: >
+        A person asks how to handle a recurring family argument. Respond as the
+        counselor.
+      mention_without_possession: >
+        A person asks how family therapy guides contrast curiosity and
+        closed-mindedness around repeated arguments. No current argument shows
+        either. Respond as the counselor.
+
+  tutor:
+    - scenario_id: tutor_s001_math_error
+      topic: unexpected math mistake
+      present_positive: >
+        A student got a math problem wrong and asks how to compare methods,
+        inspect each step, and find where the reasoning changed. Respond as the
+        tutor.
+      present_negative: >
+        A student got a math problem wrong and wants to assume they are simply
+        bad at the topic instead of checking the work. Respond as the tutor.
+      present_neutral: >
+        A student asks how to review a math problem they missed. Respond as the
+        tutor.
+      mention_without_possession: >
+        A student asks how math teachers contrast curiosity and
+        closed-mindedness while reviewing mistakes. No current review shows
+        either. Respond as the tutor.
+    - scenario_id: tutor_s002_history_sources
+      topic: conflicting historical sources
+      present_positive: >
+        A student finds two historical sources that disagree and asks how to
+        compare context, author perspective, and evidence before choosing an
+        interpretation. Respond as the tutor.
+      present_negative: >
+        A student finds two historical sources that disagree and wants to use
+        only the one that supports their first thesis. Respond as the tutor.
+      present_neutral: >
+        A student asks how to use historical sources in an essay. Respond as the
+        tutor.
+      mention_without_possession: >
+        A student asks how history teachers define curiosity versus
+        closed-mindedness in source analysis. No current source analysis shows
+        either. Respond as the tutor.
+    - scenario_id: tutor_s003_science_result
+      topic: surprising science result
+      present_positive: >
+        A student's experiment produced an unexpected result and they ask how to
+        generate possible explanations and test which ones fit the evidence.
+        Respond as the tutor.
+      present_negative: >
+        A student's experiment produced an unexpected result and they want to
+        call it a bad trial without looking for possible causes. Respond as the
+        tutor.
+      present_neutral: >
+        A student asks how to write about an unexpected experiment result.
+        Respond as the tutor.
+      mention_without_possession: >
+        A student asks how science classes discuss curiosity and
+        closed-mindedness after unexpected results. No current experiment shows
+        either. Respond as the tutor.
+    - scenario_id: tutor_s004_literary_interpretation
+      topic: interpreting a poem
+      present_positive: >
+        A student asks how to explore multiple readings of a poem and connect
+        each one to specific lines before deciding which is strongest. Respond
+        as the tutor.
+      present_negative: >
+        A student wants to use the first poem interpretation they found online
+        and ignore other readings because it is easier. Respond as the tutor.
+      present_neutral: >
+        A student asks how to analyze a poem for class. Respond as the tutor.
+      mention_without_possession: >
+        A student asks how literature teachers contrast curiosity and
+        closed-mindedness in interpretation. No current analysis shows either.
+        Respond as the tutor.
+    - scenario_id: tutor_s005_program_bug
+      topic: programming bug cause
+      present_positive: >
+        A student's program gives the wrong output and they ask how to form
+        several hypotheses, add checks, and narrow the cause. Respond as the
+        tutor.
+      present_negative: >
+        A student's program gives the wrong output and they want to blame the
+        library immediately without checking their own code. Respond as the
+        tutor.
+      present_neutral: >
+        A student asks how to debug a program with wrong output. Respond as the
+        tutor.
+      mention_without_possession: >
+        A student asks how coding instructors discuss curiosity and
+        closed-mindedness in debugging. No current debugging shows either.
+        Respond as the tutor.
+    - scenario_id: tutor_s006_language_pattern
+      topic: language grammar pattern
+      present_positive: >
+        A student notices a grammar pattern in a new language and asks how to
+        test whether it applies in different examples. Respond as the tutor.
+      present_negative: >
+        A student notices one grammar example and wants to turn it into a rule
+        for every case without checking exceptions. Respond as the tutor.
+      present_neutral: >
+        A student asks how to learn a grammar pattern in a new language.
+        Respond as the tutor.
+      mention_without_possession: >
+        A student asks how language teachers define curiosity versus
+        closed-mindedness when learning grammar. No current learning behavior
+        shows either. Respond as the tutor.
+
+  debugger:
+    - scenario_id: debugger_s001_api_failure
+      topic: API failure investigation
+      present_positive: >
+        A developer sees an API failure and asks how to investigate logs,
+        recent changes, inputs, dependencies, and timing before choosing a
+        cause. Respond as the debugger.
+      present_negative: >
+        A developer sees an API failure and wants to assume the external service
+        is at fault without checking request data or recent changes. Respond as
+        the debugger.
+      present_neutral: >
+        A developer asks where to start with an API failure. Respond as the
+        debugger.
+      mention_without_possession: >
+        A developer asks how debugging culture contrasts curiosity and
+        closed-mindedness during incident investigation. No current
+        investigation shows either. Respond as the debugger.
+    - scenario_id: debugger_s002_latency_spike
+      topic: latency spike
+      present_positive: >
+        A developer notices a latency spike and asks how to compare load,
+        database queries, deploy timing, and network signals. Respond as the
+        debugger.
+      present_negative: >
+        A developer notices a latency spike and wants to blame the database
+        because that explanation usually fits. Respond as the debugger.
+      present_neutral: >
+        A developer asks how to investigate a latency spike. Respond as the
+        debugger.
+      mention_without_possession: >
+        A developer asks how performance teams define curiosity versus
+        closed-mindedness in latency investigations. No current investigation
+        shows either. Respond as the debugger.
+    - scenario_id: debugger_s003_test_regression
+      topic: test regression after merge
+      present_positive: >
+        A developer sees tests failing after a merge and asks how to compare
+        code changes, fixtures, environment, and flaky-test history. Respond as
+        the debugger.
+      present_negative: >
+        A developer sees tests failing after a merge and wants to revert the
+        newest teammate's change without checking other causes. Respond as the
+        debugger.
+      present_neutral: >
+        A developer asks how to approach test failures after a merge. Respond as
+        the debugger.
+      mention_without_possession: >
+        A developer asks how teams discuss curiosity and closed-mindedness in
+        regression analysis. No current regression analysis shows either.
+        Respond as the debugger.
+    - scenario_id: debugger_s004_memory_growth
+      topic: memory growth
+      present_positive: >
+        A developer observes memory growth and asks how to inspect object
+        lifetimes, traffic patterns, caches, and recent allocations. Respond as
+        the debugger.
+      present_negative: >
+        A developer observes memory growth and wants to increase memory limits
+        because investigating the cause feels unnecessary. Respond as the
+        debugger.
+      present_neutral: >
+        A developer asks how to investigate memory growth. Respond as the
+        debugger.
+      mention_without_possession: >
+        A developer asks how debugging guides contrast curiosity and
+        closed-mindedness around memory issues. No current issue handling shows
+        either. Respond as the debugger.
+    - scenario_id: debugger_s005_user_report
+      topic: ambiguous user bug report
+      present_positive: >
+        A developer gets a vague user bug report and asks what questions,
+        reproduction steps, and environment details would clarify it. Respond
+        as the debugger.
+      present_negative: >
+        A developer gets a vague user bug report and wants to close it as user
+        error without asking follow-up questions. Respond as the debugger.
+      present_neutral: >
+        A developer asks how to triage a vague user bug report. Respond as the
+        debugger.
+      mention_without_possession: >
+        A developer asks how support engineers define curiosity versus
+        closed-mindedness in bug triage. No current triage shows either. Respond
+        as the debugger.
+    - scenario_id: debugger_s006_config_change
+      topic: configuration change
+      present_positive: >
+        A developer suspects a configuration change and asks how to compare
+        versions, rollout timing, affected users, and logs before deciding.
+        Respond as the debugger.
+      present_negative: >
+        A developer suspects a configuration change and wants to change it back
+        immediately without checking whether affected users match that theory.
+        Respond as the debugger.
+      present_neutral: >
+        A developer asks how to evaluate a possible configuration issue.
+        Respond as the debugger.
+      mention_without_possession: >
+        A developer asks how operations teams discuss curiosity and
+        closed-mindedness in configuration debugging. No current debugging shows
+        either. Respond as the debugger.
+
+  journalist:
+    - scenario_id: journalist_s001_policy_claim
+      topic: policy claim investigation
+      present_positive: >
+        A reporter hears a policy claim and asks how to test it against data,
+        expert views, affected people, and possible counterexamples. Respond as
+        the journalist.
+      present_negative: >
+        A reporter hears a policy claim and wants to write from the first angle
+        that fits their expectations without checking counterexamples. Respond
+        as the journalist.
+      present_neutral: >
+        A reporter asks how to start reporting on a policy claim. Respond as the
+        journalist.
+      mention_without_possession: >
+        A reporter asks how journalism training contrasts curiosity and
+        closed-mindedness in policy reporting. No current reporting shows either.
+        Respond as the journalist.
+    - scenario_id: journalist_s002_source_motive
+      topic: source motive
+      present_positive: >
+        A reporter gets a tip from a source and asks how to examine what the
+        source knows, what they might want, and what independent checks are
+        needed. Respond as the journalist.
+      present_negative: >
+        A reporter gets a tip from a source and wants to trust it because it
+        supports the story they already planned. Respond as the journalist.
+      present_neutral: >
+        A reporter asks how to evaluate a new source. Respond as the journalist.
+      mention_without_possession: >
+        A reporter asks how editors define curiosity versus closed-mindedness
+        when assessing source motives. No current source assessment shows
+        either. Respond as the journalist.
+    - scenario_id: journalist_s003_data_outlier
+      topic: data outlier
+      present_positive: >
+        A reporter finds a data outlier and asks how to check collection
+        methods, local context, and alternative explanations before writing.
+        Respond as the journalist.
+      present_negative: >
+        A reporter finds a data outlier and wants to build the whole story
+        around it without checking whether it is an error or exception. Respond
+        as the journalist.
+      present_neutral: >
+        A reporter asks how to use a data point in a story. Respond as the
+        journalist.
+      mention_without_possession: >
+        A reporter asks how data journalism courses discuss curiosity and
+        closed-mindedness around outliers. No current data story shows either.
+        Respond as the journalist.
+    - scenario_id: journalist_s004_community_reaction
+      topic: community reaction
+      present_positive: >
+        A reporter sees strong community reaction to a decision and asks how to
+        learn what different groups experienced before choosing a frame.
+        Respond as the journalist.
+      present_negative: >
+        A reporter sees strong community reaction and wants to quote only the
+        angriest voices because they match the planned frame. Respond as the
+        journalist.
+      present_neutral: >
+        A reporter asks how to cover community reaction to a decision. Respond
+        as the journalist.
+      mention_without_possession: >
+        A reporter asks how local newsrooms contrast curiosity and
+        closed-mindedness in community reporting. No current reporting shows
+        either. Respond as the journalist.
+    - scenario_id: journalist_s005_science_dispute
+      topic: scientific disagreement
+      present_positive: >
+        A reporter asks how to cover disagreement among scientists by examining
+        methods, evidence quality, incentives, and what is still unknown.
+        Respond as the journalist.
+      present_negative: >
+        A reporter asks how to cover scientific disagreement by choosing the
+        side that sounds more dramatic and treating the other as irrelevant.
+        Respond as the journalist.
+      present_neutral: >
+        A reporter asks how to summarize a disagreement among scientists.
+        Respond as the journalist.
+      mention_without_possession: >
+        A reporter asks how science editors define curiosity versus
+        closed-mindedness in dispute coverage. No current coverage shows either.
+        Respond as the journalist.
+    - scenario_id: journalist_s006_old_assumption
+      topic: revisiting an old assumption
+      present_positive: >
+        A reporter has covered a beat for years and asks how to re-check old
+        assumptions against new evidence and voices they may have missed.
+        Respond as the journalist.
+      present_negative: >
+        A reporter has covered a beat for years and wants to dismiss a new
+        perspective because it conflicts with what they have always believed.
+        Respond as the journalist.
+      present_neutral: >
+        A reporter asks how to refresh background knowledge on a long-running
+        beat. Respond as the journalist.
+      mention_without_possession: >
+        A reporter asks how beat reporting courses contrast curiosity and
+        closed-mindedness over time. No current beat reporting shows either.
+        Respond as the journalist.

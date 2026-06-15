@@ -157,6 +157,9 @@ flowchart TD
 | `data/prompt_specs/caution_recklessness_smoke_v001.yaml` | done | Full 24-scenario caution/recklessness spec. | Use for multi-trait Vast generation. |
 | `data/prompts/caution_recklessness_smoke_v001.jsonl` | done | Expanded caution/recklessness grid; 480 records, validation passed. | Generate on Vast after sincerity run starts. |
 | `data/prompts/caution_recklessness_smoke_v001_manifest.json` | done | Prompt-grid manifest for caution/recklessness. | Rebuild if source spec changes. |
+| `data/prompt_specs/curiosity_closed_mindedness_smoke_v001.yaml` | done | Full 24-scenario curiosity/closed-mindedness spec. | Use for multi-trait Vast generation. |
+| `data/prompts/curiosity_closed_mindedness_smoke_v001.jsonl` | done | Expanded curiosity/closed-mindedness grid; 480 records, validation passed. | Generate on Vast after caution run starts. |
+| `data/prompts/curiosity_closed_mindedness_smoke_v001_manifest.json` | done | Prompt-grid manifest for curiosity/closed-mindedness. | Rebuild if source spec changes. |
 | `data/prompts/warmth_coldness_role_free_v001.jsonl` | done | Generic role-free prompt grid; 24 records. | Run generation/activation separately for role-free ruler. |
 | `data/prompts/warmth_coldness_role_free_v001_manifest.json` | done | Role-free prompt-grid manifest; validation passed. | Rebuild if role-free spec changes. |
 
