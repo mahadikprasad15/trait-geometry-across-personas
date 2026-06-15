@@ -158,7 +158,17 @@ def compute_vectors(index_records: list[dict[str, Any]], layers: list[int]) -> d
     }
 
 
-def tensor_counts_to_plain(counts: dict[int, dict[str, dict[str, int]]]) -> dict[str, Any]:
+def counts_to_plain(counts: dict[int, dict[str, dict[str, int]]]) -> dict[int, dict[str, dict[str, int]]]:
+    return {
+        layer: {
+            role_id: dict(sorted(condition_counts.items()))
+            for role_id, condition_counts in sorted(role_counts.items())
+        }
+        for layer, role_counts in sorted(counts.items())
+    }
+
+
+def counts_to_jsonable(counts: dict[int, dict[str, dict[str, int]]]) -> dict[str, Any]:
     return {
         str(layer): {
             role_id: dict(sorted(condition_counts.items()))
@@ -192,15 +202,16 @@ def write_vector_artifacts(
         },
         means_path,
     )
+    plain_counts = counts_to_plain(vector_payload["counts"])
     torch.save(
         {
             "layers": layers,
             "role_trait_vectors": vector_payload["role_trait_vectors"],
-            "counts": vector_payload["counts"],
+            "counts": plain_counts,
         },
         vectors_path,
     )
-    plain_counts = tensor_counts_to_plain(vector_payload["counts"])
+    json_counts = counts_to_jsonable(plain_counts)
     write_json(
         index_path,
         {
@@ -210,7 +221,7 @@ def write_vector_artifacts(
             "layers": layers,
             "role_condition_means": str(means_path),
             "role_trait_vectors": str(vectors_path),
-            "counts": plain_counts,
+            "counts": json_counts,
         },
     )
     write_json(
@@ -224,7 +235,7 @@ def write_vector_artifacts(
             "layers": layers,
             "input_summary": summary,
             "condition_coverage": coverage,
-            "counts": plain_counts,
+            "counts": json_counts,
             "artifacts": {
                 "role_condition_means": str(means_path),
                 "role_trait_vectors": str(vectors_path),
