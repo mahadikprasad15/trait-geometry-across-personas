@@ -16,19 +16,20 @@ Status labels:
 |---|---:|---|---|
 | Research design | done | Staged implementation plan exists. | Keep synced as decisions change. |
 | Role selection | done | Assistant Axis roles selected and config created. | Add upstream commit hash later. |
-| Trait selection | done | Five pilot trait axes selected and config created. | Add judge rubrics later. |
+| Trait selection | done | Five pilot trait axes selected, config created, and generic behavior judge rubric added. | Add trait-specific rubric refinements only if first judged pilot shows ambiguity. |
 | Prompt schema | done | Prompt-record schema exists. | Add machine-checkable model in code. |
-| Pilot config | done | `pilot_v0.yaml` exists. | Add model/layer config later. |
-| Warmth prompt spec | in_progress | Smoke-run scenario spec drafted, revised, and YAML-validated. | Manual quality audit for role-specific confounds. |
-| Prompt expansion | done | Warmth/coldness JSONL grid and manifest generated. | Continue sample inspection before generation. |
-| Generation | in_progress | `GenerationRunner` includes transformers generation, resume, dry-run artifacts, dependency checks, tqdm progress, and real batched generation with default batch size 8. Warmth/coldness has been run on Vast. | Use batch-8 runner for remaining trait grids; lower `--batch-size` only if GPU memory fails. |
-| Activation cache | in_progress | `ActivationCacheBuilder` exists with TransformerLens backend, dry-run, resume, middle-layer config, tqdm progress, and batched caching with default batch size 8. | Use batched activation caching for remaining trait grids; lower `--batch-size` only if GPU memory fails. |
-| Vectors/rulers | in_progress | `VectorBuilder` and `RulerBuilder` exist with dry-run/dependency checks; vector condition means retain mention controls; primary and role-free ruler methods are configured. | Run after Vast activation output exists. |
-| Validation gates | in_progress | Salience gate runner exists for scalar direction, axis-alignment, and mention-control checks; not run on real scalars yet. | Run after scalar decomposition exists. |
-| HF artifact sync | in_progress | Separate Hugging Face sync runner/config/runbook exist; not uploaded from Vast yet. | Dry-run sync after first Vast stage completes. |
-| Behavior judging | blocked | Needs generated completions and judge rubric. | Add after generation runner. |
-| Geometry | later | Needs vectors/rulers. | Run after scalar smoke run. |
-| Steering | later | Needs validated ruler and intervention path. | Defer until validation passes. |
+| Pilot config | done | `pilot_v0.yaml` exists and five-trait 1B primary-role pilot has run at layer 8. | Add behavior/geometry configs next. |
+| Prompt specs | done | Full 24-scenario specs exist for all five pilot traits. | Manual quality audit before treating findings as final. |
+| Prompt expansion | done | All five pilot trait grids expanded to 480 records each. | Add role-free/heldout grids later. |
+| Generation | done | Five full primary-role trait grids generated on Vast with Llama 3.2 1B Instruct. Runner supports resume, tqdm, and batched generation. | Reuse for heldout/role-free/model-scale variants. |
+| Activation cache | done | Five primary-role trait runs cached at layer 8. Runner supports resume, tqdm, and batched TransformerLens caching. | Reuse for later layers/roles if needed. |
+| Vectors/rulers | done | Five role-vector sets and primary-role rulers built; multi-trait ruler naming bug fixed with trait-axis metadata. | Add role-free and heldout-transfer comparisons. |
+| Validation gates | done | Five scalar decompositions and salience gates completed for primary-role layer-8 pilot. | Summarize cross-trait results and inspect failures. |
+| HF artifact sync | done | Full five-trait pilot artifacts synced to HF dataset, including a raw-activation upload after the lightweight sync. | Pull artifacts locally for reporting. |
+| Reporting | in_progress | Multi-trait scalar/gate, scalar-behavior, and integrated report scripts exist. | Run summaries, then rerun integrated report as sections become available. |
+| Behavior judging | in_progress | Generic rubric, judge model config, and resumable `TraitJudgeRunner` exist. | Run dry-run and small judged pilot on one trait. |
+| Geometry | in_progress | `GeometryAnalyzer` exists for vector/ruler cosines and PCA summaries. | Run on Vast or a working torch environment after artifact pull. |
+| Steering | later | Deferred along with probes and held-out transfer. | Revisit after scalar, behavior, and geometry reports are inspected. |
 
 ## Locked Selections
 
@@ -85,14 +86,19 @@ flowchart TD
   L --> N["ScalarDecompositionBuilder"]
   M --> O["ValidationGateRunner"]
   N --> O
+  N --> V["MultiTraitSummaryBuilder"]
+  O --> V
   I --> P["TraitJudgeRunner"]
   P --> Q["BehaviorMetricsBuilder"]
+  N --> W["ScalarBehaviorSummaryBuilder"]
+  O --> W
+  Q --> W
   M --> R["GeometryAnalyzer"]
   L --> R
   M --> S["SteeringRunner"]
   I --> S
-  O --> T["ReportBuilder"]
-  Q --> T
+  V --> T["ReportBuilder"]
+  W --> T
   R --> T
   S --> T
   I --> U["HfArtifactSyncRunner"]
@@ -111,18 +117,18 @@ flowchart TD
 | `configs/schemas/` | done | Structured record schemas. |
 | `configs/storage/` | done | Artifact sync config for Hugging Face. |
 | `configs/traits/` | done | Trait-axis configs. |
-| `data/prompt_specs/` | in_progress | Human-authored scenario specs before expansion. |
-| `data/prompts/` | done | Expanded warmth/coldness prompt grid and manifest. |
+| `data/prompt_specs/` | done | Human-authored scenario specs before expansion. |
+| `data/prompts/` | done | Expanded prompt grids and manifests for all five pilot traits. |
 | `data/raw/` | todo | Optional raw source data. |
 | `data/processed/` | todo | Optional processed source data. |
-| `artifacts/runs/` | todo | All generated experiment outputs. |
-| `src/trait_geometry/` | in_progress | Package code started with prompt-grid builder. |
-| `scripts/prompts/` | in_progress | CLI scripts exist for prompt-grid building and sample inspection. |
-| `scripts/generation/` | todo | CLI scripts for model generation. |
-| `scripts/activations/` | todo | CLI scripts for activation caching. |
-| `scripts/analysis/` | todo | CLI scripts for vectors, rulers, metrics, plots. |
-| `scripts/artifacts/` | in_progress | CLI scripts for artifact sync. |
-| `scripts/reporting/` | todo | Report-building scripts. |
+| `artifacts/runs/` | done | Five-trait pilot outputs generated on Vast and synced to HF. |
+| `src/trait_geometry/` | in_progress | Package code covers prompts, generation, activations, vectors, rulers, scalars, gates, artifact sync, judging, behavior metrics, geometry, and reporting summaries. |
+| `scripts/prompts/` | done | CLI scripts exist for prompt-grid building and sample inspection. |
+| `scripts/generation/` | done | CLI script exists for resumable batched model generation. |
+| `scripts/activations/` | done | CLI script exists for resumable batched activation caching. |
+| `scripts/analysis/` | in_progress | CLI scripts exist for vectors, rulers, scalars, salience gates, judging, behavior metrics, and geometry. |
+| `scripts/artifacts/` | done | CLI script exists for HF artifact sync. |
+| `scripts/reporting/` | in_progress | Multi-trait scalar/gate and scalar-behavior summary CLIs exist; richer report builder still pending. |
 | `docs/design/` | in_progress | Plans, tracker, design decisions. |
 | `docs/learning/` | in_progress | Research-engineering learning notes. |
 | `docs/sources/` | in_progress | Source research notes. |
@@ -140,6 +146,8 @@ flowchart TD
 | `configs/schemas/prompt_record.schema.yaml` | done | Expanded prompt-record schema. | `PromptGridBuilder`, validation |
 | `configs/experiments/pilot_v0.yaml` | done | Pilot experiment wiring and artifact policy. | All first-stage builders/runners |
 | `configs/models/llama_3_2_1b_instruct.yaml` | done | First smoke-run model config and tooling defaults, including generation batch size 8. | `GenerationRunner`, `ActivationCacheBuilder` later |
+| `configs/models/judge_openai_gpt_4_1_mini.yaml` | done | OpenAI judge model config with deterministic structured-output defaults. | `TraitJudgeRunner` |
+| `configs/judges/trait_behavior_rubric_v001.yaml` | done | Generic behavior scoring rubric filled with trait-specific pole definitions. | `TraitJudgeRunner`, behavior metrics later |
 | `configs/storage/hf_sync.yaml` | done | Hugging Face dataset repo defaults and upload include/exclude policy. | `HfArtifactSyncRunner` |
 
 ## Prompt Data Inventory
@@ -168,26 +176,47 @@ flowchart TD
 
 ## Component Board
 
+### Next Script Queue
+
+| Priority | Component | Status | Planned script | Purpose | Inputs | Outputs |
+|---:|---|---:|---|---|---|---|
+| 1 | `MultiTraitSummaryBuilder` | in_progress | `scripts/reporting/summarize_traits.py` | Collapse five scalar/gate runs into one inspection surface. | scalar JSONs, salience gate JSONs | trait CSV, role CSV, JSON, Markdown |
+| 2 | `TraitJudgeRunner` | in_progress | `scripts/analysis/run_trait_judge.py` | Score generated completions for trait expression and role adherence. | generations JSONL, trait rubric config, judge model config | judgment JSONL, judge manifest/status |
+| 3 | `BehaviorMetricsBuilder` | in_progress | `scripts/analysis/build_behavior_metrics.py` | Convert raw judge ratings into baseline and elicitation-shift summaries. | judgment JSONL, prompt metadata | behavior summary CSV/JSON |
+| 4 | `ScalarBehaviorSummaryBuilder` | in_progress | `scripts/reporting/summarize_scalar_behavior.py` | Join activation scalar shifts, salience gates, and behavior shifts. | scalar JSONs, salience gate JSONs, behavior metrics JSONs | joined role CSV, trait CSV, JSON, Markdown |
+| 5 | `GeometryAnalyzer` | in_progress | `scripts/analysis/run_geometry.py` | Analyze role-vector/ruler geometry across traits. | role vectors, rulers | cosine tables, PCA summaries, Markdown/JSON report |
+| 6 | `ReportBuilder` | in_progress | `scripts/reporting/build_report.py` | Combine scalar/gate, geometry, and scalar-behavior summaries into one report. | summary JSONs | integrated Markdown/JSON report |
+| 7 | `RoleFreeGridBuilder` | later | `scripts/prompts/build_role_free_trait_grids.py` | Build role-free grids for all non-warmth pilot traits. | trait configs, role-free scenario template/specs | role-free prompt JSONLs/manifests |
+| 8 | `RoleFreeRulerPipeline` | later | existing generation/activation/vector/ruler scripts | Build lower-circularity role-free rulers for all traits. | role-free prompt grids | role-free rulers and scalar comparisons |
+| 9 | `HeldoutTransferRunner` | later | `scripts/analysis/run_heldout_transfer.py` | Test primary-role rulers on mediator/strategist. | heldout prompts/activations/vectors, primary rulers | heldout scalar/gate summaries |
+| 10 | `ProbeComparisonRunner` | later | `scripts/analysis/run_probe_comparison.py` | Train/evaluate trait probes and compare probe directions to rulers. | raw activations, labels, splits | probe metrics, transfer matrix, direction cosines |
+| 11 | `ConstantSteeringRunner` | later | `scripts/analysis/run_constant_steering.py` | Apply trait rulers as interventions and measure behavior/quality changes. | model, ruler, prompts, alpha schedule | steered generations, steering manifest |
+| 12 | `SaturationAnalyzer` | later | `scripts/analysis/run_saturation.py` | Test whether high-offset roles have smaller elicitation/steering shifts. | scalar summaries, behavior summaries, steering outputs | offset-vs-shift tables/plots |
+
 ### Builders
 
 | Component | Status | Script | Inputs | Outputs | Depends on |
 |---|---:|---|---|---|---|
 | `PromptGridBuilder` | done | `scripts/prompts/build_prompt_grid.py` | role config, trait config, prompt schema, scenario spec | expanded JSONL, manifest | current configs/spec |
 | `BalancedPromptGridSampler` | done | `scripts/prompts/sample_balanced_grid.py` | expanded JSONL, roles, conditions, variant | balanced JSONL, manifest | expanded prompt grid |
-| `ActivationCacheBuilder` | in_progress | `scripts/activations/cache_activations.py` | generations JSONL, model config, layer policy, optional `--batch-size` | activation artifacts and index | generation output, model config |
-| `VectorBuilder` | in_progress | `scripts/analysis/build_vectors.py` | activation index, activation `.pt` artifacts | condition means including mention controls, role vectors, vector manifest | activation cache |
-| `RulerBuilder` | in_progress | `scripts/analysis/build_rulers.py` | role vectors, experiment config | unit ruler, ruler manifest | vector builder |
-| `ScalarDecompositionBuilder` | in_progress | `scripts/analysis/build_scalar_decomposition.py` | condition means, role vectors, ruler | scalar JSON/CSV, scalar manifest | vectors/rulers |
-| `ReportBuilder` | later | `scripts/reporting/build_report.py` | metrics, plots, run manifests | Markdown/JSON reports | validation/analysis outputs |
+| `ActivationCacheBuilder` | done | `scripts/activations/cache_activations.py` | generations JSONL, model config, layer policy, optional `--batch-size` | activation artifacts and index | generation output, model config |
+| `VectorBuilder` | done | `scripts/analysis/build_vectors.py` | activation index, activation `.pt` artifacts | condition means including mention controls, role vectors, vector manifest | activation cache |
+| `RulerBuilder` | done | `scripts/analysis/build_rulers.py` | role vectors, experiment config | unit ruler, ruler manifest | vector builder |
+| `ScalarDecompositionBuilder` | done | `scripts/analysis/build_scalar_decomposition.py` | condition means, role vectors, ruler | scalar JSON/CSV, scalar manifest | vectors/rulers |
+| `MultiTraitSummaryBuilder` | in_progress | `scripts/reporting/summarize_traits.py` | scalar JSONs, salience gate JSONs | cross-trait JSON/CSV/Markdown summaries | scalar/gate outputs |
+| `ScalarBehaviorSummaryBuilder` | in_progress | `scripts/reporting/summarize_scalar_behavior.py` | scalar JSONs, salience gate JSONs, behavior metrics JSONs | scalar-behavior JSON/CSV/Markdown summaries | scalar/gate outputs, behavior metrics |
+| `ReportBuilder` | in_progress | `scripts/reporting/build_report.py` | scalar/gate summary, geometry summary, scalar-behavior summary | integrated Markdown/JSON report and manifest | validation/analysis outputs |
+| `RoleFreeGridBuilder` | todo | `scripts/prompts/build_role_free_trait_grids.py` | trait configs, role-free template/specs | role-free prompt JSONLs/manifests | role-free ruler comparison |
 
 ### Runners
 
 | Component | Status | Script | Inputs | Outputs | Depends on |
 |---|---:|---|---|---|---|
-| `GenerationRunner` | in_progress | `scripts/generation/run_generation.py` | prompt JSONL, model config, optional `--batch-size` | dry-run artifacts locally; `results/generations.jsonl` on Vast | prompt grid, model config |
-| `HfArtifactSyncRunner` | in_progress | `scripts/artifacts/sync_to_hf.py` | local artifact subtree, sync config | HF dataset commit, local sync manifest | completed local artifacts |
-| `TraitJudgeRunner` | blocked | `scripts/analysis/run_trait_judge.py` | completions, trait rubric | structured ratings JSONL | generation, judge rubric |
+| `GenerationRunner` | done | `scripts/generation/run_generation.py` | prompt JSONL, model config, optional `--batch-size` | dry-run artifacts locally; `results/generations.jsonl` on Vast | prompt grid, model config |
+| `HfArtifactSyncRunner` | done | `scripts/artifacts/sync_to_hf.py` | local artifact subtree, sync config | HF dataset commit, local sync manifest | completed local artifacts |
+| `TraitJudgeRunner` | in_progress | `scripts/analysis/run_trait_judge.py` | completions, trait config, rubric config, judge model config | structured ratings JSONL, judge manifest/status/progress | generation, judge rubric |
 | `ConstantSteeringRunner` | later | `scripts/analysis/run_constant_steering.py` | model, ruler, prompts, alpha ladder | steered completions and scores | validated ruler |
+| `HeldoutTransferRunner` | todo | `scripts/analysis/run_heldout_transfer.py` | heldout role vectors, primary rulers | heldout scalar/gate transfer summaries | heldout prompts/activations |
 
 ### Analyzers and Gates
 
@@ -195,10 +224,12 @@ flowchart TD
 |---|---:|---|---|---|---|
 | `PromptGridInspector` | done | `scripts/prompts/inspect_prompt_grid.py` | expanded prompt JSONL | readable grouped samples and counts | `PromptGridBuilder` |
 | `PromptGridValidator` | todo | `scripts/prompts/validate_prompt_grid.py` | expanded prompt JSONL | standalone validation report | `PromptGridBuilder` |
-| `SalienceGateRunner` | in_progress | `scripts/analysis/run_salience_gate.py` | scalar decomposition JSON | salience gate JSON/CSV, gate manifest | scalar decomposition |
-| `ScalarDecompositionBuilder` | in_progress | `scripts/analysis/build_scalar_decomposition.py` | condition means, role vectors, ruler | offsets, shifts, raw projections, axis alignment JSON/CSV | vectors/rulers |
-| `BehaviorMetricsBuilder` | blocked | `scripts/analysis/build_behavior_metrics.py` | judge ratings | baseline/shift summaries | `TraitJudgeRunner` |
-| `GeometryAnalyzer` | later | `scripts/analysis/run_geometry.py` | role vectors, rulers | cosines, PCA, residual PCA | vectors/rulers |
+| `SalienceGateRunner` | done | `scripts/analysis/run_salience_gate.py` | scalar decomposition JSON | salience gate JSON/CSV, gate manifest | scalar decomposition |
+| `ScalarDecompositionBuilder` | done | `scripts/analysis/build_scalar_decomposition.py` | condition means, role vectors, ruler | offsets, shifts, raw projections, axis alignment JSON/CSV | vectors/rulers |
+| `MultiTraitSummaryBuilder` | in_progress | `scripts/reporting/summarize_traits.py` | scalar decomposition JSON, salience gate JSON | trait-level and role-level summary tables | scalar + gate outputs |
+| `BehaviorMetricsBuilder` | in_progress | `scripts/analysis/build_behavior_metrics.py` | judge ratings | baseline/shift summaries, matched-pair shifts, quality summaries | `TraitJudgeRunner` |
+| `ScalarBehaviorSummaryBuilder` | in_progress | `scripts/reporting/summarize_scalar_behavior.py` | scalar decomposition JSON, salience gate JSON, behavior metrics JSON | joined scalar-behavior summaries and quick Markdown report | scalar + gate + behavior outputs |
+| `GeometryAnalyzer` | in_progress | `scripts/analysis/run_geometry.py` | role vectors, rulers | role-pair cosines, role-ruler alignment, ruler-ruler cosines, same-role cross-trait cosines, PCA summaries | vectors/rulers |
 | `ProbeComparisonRunner` | later | `scripts/analysis/run_probe_comparison.py` | activations, labels | probe metrics, direction cosines | activation cache |
 | `SaturationAnalyzer` | later | `scripts/analysis/run_saturation.py` | scalar metrics, behavior metrics | offset-vs-shift, dose-response summaries | scalar + behavior outputs |
 
@@ -208,17 +239,20 @@ flowchart TD
 |---|---:|---|---|---|
 | Expanded prompt JSONL | done | `PromptGridBuilder` | generation, activation caching | `data/prompts/warmth_coldness_smoke_v001.jsonl`, 480 records. |
 | Prompt-grid manifest | done | `PromptGridBuilder` | audit, reports | `data/prompts/warmth_coldness_smoke_v001_manifest.json`, validation passed. |
-| Run manifest | in_progress | all runners | all downstream stages | Dry-run generation manifest exists. |
-| Status/progress files | in_progress | all runners | resume logic | Dry-run generation status/progress exists. |
-| Generations JSONL | in_progress | `GenerationRunner` | judging, optional activation cache | Warmth/coldness full run completed on Vast; remaining trait grids still need generation. |
-| Activations | blocked | `ActivationCacheBuilder` | vectors/rulers | Logic exists; needs generation output and model-enabled Vast run. |
-| Role vectors | blocked | `VectorBuilder` | rulers, geometry | Logic exists; needs real activation artifacts and torch. |
-| Benchmark rulers | blocked | `RulerBuilder` | scalar/validation/steering | Logic exists for `primary_roles_mean` and `role_free_mean`; needs real role vectors and torch. |
-| Scalar decomposition | blocked | `ScalarDecompositionBuilder` | reports, saturation, validation gates | Logic exists for offset/shift/axis-alignment tables; needs real vectors/rulers and torch. |
-| Salience gate | blocked | `SalienceGateRunner` | reports, geometry go/no-go | Logic exists for direction, mention-control, and axis-alignment gates; needs real scalar rows. |
-| HF sync manifests | in_progress | `HfArtifactSyncRunner` | audit, reproducibility | Local dry-run manifests are written under `artifacts/sync_manifests`; Vast upload manifests pending. |
-| Behavior ratings | blocked | `TraitJudgeRunner` | behavior metrics | Needs judge rubric. |
-| Reports | later | `ReportBuilder` | user/paper notes | Markdown plus structured summaries. |
+| Run manifest | done | all runners | all downstream stages | Five-trait Vast run manifests exist and are synced to HF. |
+| Status/progress files | done | all runners | resume logic | Five-trait Vast status/progress files exist and are synced to HF. |
+| Generations JSONL | done | `GenerationRunner` | judging, optional activation cache | Five primary-role trait grids have 480 generations each. |
+| Activations | done | `ActivationCacheBuilder` | vectors/rulers | Five primary-role trait runs cached at layer 8; raw tensors were synced after lightweight sync. |
+| Role vectors | done | `VectorBuilder` | rulers, geometry | Five primary-role vector sets exist. |
+| Benchmark rulers | done | `RulerBuilder` | scalar/validation/steering | Five `primary_roles_mean` rulers exist with trait-correct filenames. |
+| Scalar decomposition | done | `ScalarDecompositionBuilder` | reports, saturation, validation gates | Five scalar decomposition tables exist. |
+| Salience gate | done | `SalienceGateRunner` | reports, geometry go/no-go | Five salience gate outputs exist. |
+| HF sync manifests | done | `HfArtifactSyncRunner` | audit, reproducibility | Full five-trait pilot synced to HF dataset commit `eea70a45f0e6553301bc9b79c0e76335773e10e9`; raw tensor sync also completed after the lightweight sync. |
+| Multi-trait summary | in_progress | `MultiTraitSummaryBuilder` | reporting, next-step triage | Script exists; run it after local artifact pull. |
+| Behavior ratings | in_progress | `TraitJudgeRunner`, `BehaviorMetricsBuilder` | behavior metrics/reporting | Runner and metrics builder exist; needs first real judged run. |
+| Scalar-behavior summary | in_progress | `ScalarBehaviorSummaryBuilder` | report builder, result interpretation | Script exists and passes synthetic fixture; run after real behavior metrics exist. |
+| Geometry summary | in_progress | `GeometryAnalyzer` | report builder, geometry interpretation | Script exists and compiles; local tensor execution blocked by broken local torch, so run on Vast/working torch. |
+| Reports | in_progress | `ReportBuilder` | user/paper notes | Integrated Markdown/JSON builder exists and passes synthetic fixture. |
 
 ## Immediate TODO Checklist
 
@@ -278,11 +312,11 @@ flowchart TD
 - [x] Verify generation dry-run writes manifest/status/progress/preview.
 - [x] Implement actual transformers generation path.
 - [x] Add Vast generation runbook.
-- [ ] Run tiny Vast generation test with `--limit 8`.
+- [x] Run tiny Vast generation test with `--limit 8`.
 - [x] Implement activation cache builder.
 - [x] Verify activation dry-run writes manifest/status/progress/preview.
 - [x] Add Vast activation runbook.
-- [ ] Run tiny Vast activation test after generation output exists.
+- [x] Run tiny Vast activation test after generation output exists.
 - [x] Implement vector builder.
 - [x] Implement ruler builder.
 - [x] Add Vast vector/ruler runbook.
@@ -293,26 +327,40 @@ flowchart TD
 - [x] Implement scalar decomposition builder.
 - [x] Implement salience gate runner.
 - [x] Add Hugging Face artifact sync config/script/runbook.
-- [ ] Run vector/ruler builders after activation output exists.
-- [ ] Run scalar decomposition after vectors/rulers exist.
-- [ ] Run salience gate after scalar decomposition exists.
-- [ ] Dry-run HF sync after first Vast stage completes.
-- [ ] Upload first Vast smoke artifacts to HF.
-- [ ] Add trait judge rubric.
+- [x] Run vector/ruler builders after activation output exists.
+- [x] Run scalar decomposition after vectors/rulers exist.
+- [x] Run salience gate after scalar decomposition exists.
+- [x] Dry-run HF sync after first Vast stage completes.
+- [x] Upload first Vast smoke artifacts to HF.
+- [x] Run full five-trait primary-role pilot through generation, activations, vectors, rulers, scalars, and gates.
+- [x] Sync full five-trait pilot artifacts to HF.
+- [x] Implement multi-trait scalar/gate summary script.
+- [ ] Run multi-trait summary script after pulling HF artifacts locally.
+- [x] Add trait judge rubric.
+- [x] Implement resumable `TraitJudgeRunner`.
+- [x] Implement `BehaviorMetricsBuilder`.
+- [x] Implement `ScalarBehaviorSummaryBuilder`.
+- [x] Implement `GeometryAnalyzer`.
+- [x] Implement integrated `ReportBuilder`.
+- [ ] Run trait judge dry-run on one trait.
+- [ ] Run first small judged pilot and inspect rows.
+- [ ] Build behavior metrics for first judged pilot.
+- [ ] Build scalar-behavior summary for first judged pilot.
+- [ ] Run `GeometryAnalyzer` on five-trait vector/ruler artifacts.
 - [ ] Build first smoke-run report.
 
 ## Open Decisions
 
 | Decision | Status | Current default | Risk |
 |---|---:|---|---|
-| Use all five role instruction variants in first expansion? | open | yes in `pilot_v0.yaml` | 480 prompts may be too many before tooling is tested. |
-| First model | provisional | `meta-llama/Llama-3.2-1B-Instruct` | Requires HF access and dependencies. |
+| Use all five role instruction variants in first expansion? | locked | yes; five variants used for all five 480-record trait grids | Larger than tiny smoke, but completed successfully on Vast. |
+| First model | locked | `meta-llama/Llama-3.2-1B-Instruct` | Completed five-trait primary-role pilot. |
 | Secondary model | provisional | `meta-llama/Llama-3.2-3B-Instruct` | Use only after 1B pipeline works. |
-| Activation tooling | provisional | TransformerLens preferred, HF hooks fallback | Must verify installed package support. |
-| First layer policy | provisional | layers 6, 10, 14 with response-token mean | Layer choice affects tensor/artifact shape. |
-| Judge model/rubric | open | none | Blocks behavior metrics. |
+| Activation tooling | locked for pilot v0 | TransformerLens | Verified on Vast for Llama 3.2 1B layer-8 activation caching. |
+| First layer policy | locked for pilot v0 | layer 8 with response-token mean | Single middle-layer pilot completed. |
+| Judge model/rubric | locked for pilot v0 | generic rubric plus `gpt-4.1-mini` judge config | May need trait-specific refinement after first judged pilot. |
 | Coldness prompt quality | open | workflow constraint induction | May capture brevity/register rather than coldness. |
-| HF dataset repo name | provisional | `prasadmahadik/trait-geometry-across-personas` | Must exist on HF or be created with `--create-repo`. |
+| HF dataset repo name | locked | `Prasadmahadik/trait-geometry-across-personas` | Case-sensitive HF dataset repo used for successful sync. |
 
 ## Updating Rules
 

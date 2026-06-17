@@ -1,0 +1,19 @@
+schema_version: 0.1
+model_id: judge_openai_gpt_4_1_mini
+display_name: OpenAI judge model
+provider: openai
+openai_model: gpt-4.1-mini
+
+purpose:
+  behavior_judging: true
+  notes: >
+    First configurable judge target for behavioral scoring. Override the model
+    from the CLI if a different OpenAI model is preferred.
+
+generation:
+  temperature: 0.0
+  max_output_tokens: 500
+
+access_requirements:
+  openai_api_key_required: true
+  env_var: OPENAI_API_KEY

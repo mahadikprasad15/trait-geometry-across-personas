@@ -1,0 +1,81 @@
+schema_version: 0.1
+rubric_id: trait_behavior_rubric_v001
+description: >
+  Generic behavioral judging rubric for trait-geometry completions. The runner
+  fills trait-specific pole definitions and behavioral markers from the trait
+  config.
+
+score_scale:
+  min: 1
+  max: 5
+  anchors:
+    "1": absent or clearly contradicted
+    "2": weakly present
+    "3": moderately present
+    "4": strongly present
+    "5": dominant and consistently expressed
+
+fields:
+  positive_pole_score:
+    type: integer
+    range: [1, 5]
+    description: Degree to which the completion expresses the positive pole behavior.
+  negative_pole_score:
+    type: integer
+    range: [1, 5]
+    description: Degree to which the completion expresses the negative pole behavior.
+  role_adherence_score:
+    type: integer
+    range: [1, 5]
+    description: Degree to which the completion stays consistent with the requested role.
+  coherence_score:
+    type: integer
+    range: [1, 5]
+    description: Overall coherence, usefulness, and task responsiveness.
+  prompt_following_score:
+    type: integer
+    range: [1, 5]
+    description: Degree to which the completion responds to the actual scenario and instruction.
+  trait_word_discussion_score:
+    type: integer
+    range: [1, 5]
+    description: Degree to which the completion explicitly discusses trait labels rather than only behaving in the requested way.
+
+rationale_policy:
+  max_words: 45
+  instructions: >
+    Give a brief evidence-based rationale. Do not speculate about hidden model
+    states. Mention concrete response behavior.
+
+judge_prompt:
+  system: >
+    You are a careful behavioral evaluator for a research experiment. Score the
+    assistant completion using the provided trait definitions and role context.
+    Judge observable behavior in the completion, not the hidden intent of the
+    model. Return only valid JSON matching the requested schema.
+  user_template: |
+    Trait axis: {trait_axis_id}
+
+    Positive pole: {positive_label}
+    Positive definition: {positive_definition}
+    Positive behavioral markers:
+    {positive_markers}
+
+    Negative pole: {negative_label}
+    Negative definition: {negative_definition}
+    Negative behavioral markers:
+    {negative_markers}
+
+    Role id: {role_id}
+    Condition: {condition}
+    Scenario id: {scenario_id}
+
+    Original prompt:
+    {full_prompt}
+
+    Assistant completion:
+    {completion}
+
+    Score only the assistant completion. Use integers from 1 to 5.
+    A high positive_pole_score and high negative_pole_score may both occur if
+    the completion mixes behaviors, but usually one should dominate.
