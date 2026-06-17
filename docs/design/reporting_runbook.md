@@ -129,3 +129,39 @@ python3 scripts/reporting/build_report.py \
   --geometry-summary artifacts/reports/five_trait_geometry_v0/geometry_summary.json \
   --scalar-behavior-summary artifacts/reports/five_trait_behavior_v0/scalar_behavior_summary.json
 ```
+
+## Plot Pack
+
+Use this after scalar/gate and geometry summaries exist.
+
+Install plotting dependencies if needed:
+
+```bash
+pip install matplotlib numpy
+```
+
+Run:
+
+```bash
+python3 scripts/reporting/plot_report.py \
+  --output-dir artifacts/reports/pilot_plot_pack_v0
+```
+
+Expected default inputs:
+
+```text
+artifacts/reports/five_trait_pilot_v0/multi_trait_summary.json
+artifacts/reports/five_trait_geometry_v0/geometry_summary.json
+```
+
+Expected outputs:
+
+```text
+artifacts/reports/pilot_plot_pack_v0/scalar_positive_shift_heatmap.png
+artifacts/reports/pilot_plot_pack_v0/scalar_negative_shift_heatmap.png
+artifacts/reports/pilot_plot_pack_v0/axis_alignment_heatmap.png
+artifacts/reports/pilot_plot_pack_v0/cross_trait_ruler_cosines.png
+artifacts/reports/pilot_plot_pack_v0/role_pair_axis_cosines.png
+artifacts/reports/pilot_plot_pack_v0/plot_pack.md
+artifacts/reports/pilot_plot_pack_v0/plot_manifest.json
+```

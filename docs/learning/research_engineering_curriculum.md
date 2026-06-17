@@ -800,6 +800,25 @@ An integrated report is a product artifact, not a scratch notebook. It should
 make current evidence inspectable while clearly separating completed sections
 from pending sections.
 
+`PilotPlotBuilder`
+
+- Type: reporting/visualization builder.
+- Purpose: convert scalar and geometry summary JSONs into a small plot pack for
+  quick inspection.
+- Inputs: `multi_trait_summary.json` and `geometry_summary.json`.
+- Outputs: PNG heatmaps/bar plots, `plot_pack.md`, and `plot_manifest.json`.
+- RE lesson: plots should consume summary artifacts, not raw model outputs. This
+  keeps visualization cheap, repeatable, and independent from expensive
+  generation/activation runs.
+
+Implementation pattern:
+
+- Use signed diverging heatmaps for scalar shifts and cosine values.
+- Keep role and trait order stable across plots so visual comparisons are easy.
+- Write a manifest with input paths and plot output paths.
+- Treat plots as artifacts under `artifacts/reports/...`, not screenshots or
+  notebook-only side effects.
+
 `GeometryAnalyzer`
 
 - Type: analyzer.

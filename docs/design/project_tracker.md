@@ -26,7 +26,7 @@ Status labels:
 | Vectors/rulers | done | Five role-vector sets and primary-role rulers built; multi-trait ruler naming bug fixed with trait-axis metadata. | Add role-free and heldout-transfer comparisons. |
 | Validation gates | done | Five scalar decompositions and salience gates completed for primary-role layer-8 pilot. | Summarize cross-trait results and inspect failures. |
 | HF artifact sync | done | Full five-trait pilot artifacts synced to HF dataset, including a raw-activation upload after the lightweight sync. | Pull artifacts locally for reporting. |
-| Reporting | in_progress | Multi-trait scalar/gate, scalar-behavior, and integrated report scripts exist. | Run summaries, then rerun integrated report as sections become available. |
+| Reporting | in_progress | Multi-trait scalar/gate, scalar-behavior, integrated report, and plot-pack scripts exist. | Run summaries, plot pack, then rerun integrated report as sections become available. |
 | Behavior judging | in_progress | Generic rubric, judge model config, and resumable `TraitJudgeRunner` exist. | Run dry-run and small judged pilot on one trait. |
 | Geometry | in_progress | `GeometryAnalyzer` exists for vector/ruler cosines and PCA summaries. | Run on Vast or a working torch environment after artifact pull. |
 | Steering | later | Deferred along with probes and held-out transfer. | Revisit after scalar, behavior, and geometry reports are inspected. |
@@ -186,12 +186,13 @@ flowchart TD
 | 4 | `ScalarBehaviorSummaryBuilder` | in_progress | `scripts/reporting/summarize_scalar_behavior.py` | Join activation scalar shifts, salience gates, and behavior shifts. | scalar JSONs, salience gate JSONs, behavior metrics JSONs | joined role CSV, trait CSV, JSON, Markdown |
 | 5 | `GeometryAnalyzer` | in_progress | `scripts/analysis/run_geometry.py` | Analyze role-vector/ruler geometry across traits. | role vectors, rulers | cosine tables, PCA summaries, Markdown/JSON report |
 | 6 | `ReportBuilder` | in_progress | `scripts/reporting/build_report.py` | Combine scalar/gate, geometry, and scalar-behavior summaries into one report. | summary JSONs | integrated Markdown/JSON report |
-| 7 | `RoleFreeGridBuilder` | later | `scripts/prompts/build_role_free_trait_grids.py` | Build role-free grids for all non-warmth pilot traits. | trait configs, role-free scenario template/specs | role-free prompt JSONLs/manifests |
-| 8 | `RoleFreeRulerPipeline` | later | existing generation/activation/vector/ruler scripts | Build lower-circularity role-free rulers for all traits. | role-free prompt grids | role-free rulers and scalar comparisons |
-| 9 | `HeldoutTransferRunner` | later | `scripts/analysis/run_heldout_transfer.py` | Test primary-role rulers on mediator/strategist. | heldout prompts/activations/vectors, primary rulers | heldout scalar/gate summaries |
-| 10 | `ProbeComparisonRunner` | later | `scripts/analysis/run_probe_comparison.py` | Train/evaluate trait probes and compare probe directions to rulers. | raw activations, labels, splits | probe metrics, transfer matrix, direction cosines |
-| 11 | `ConstantSteeringRunner` | later | `scripts/analysis/run_constant_steering.py` | Apply trait rulers as interventions and measure behavior/quality changes. | model, ruler, prompts, alpha schedule | steered generations, steering manifest |
-| 12 | `SaturationAnalyzer` | later | `scripts/analysis/run_saturation.py` | Test whether high-offset roles have smaller elicitation/steering shifts. | scalar summaries, behavior summaries, steering outputs | offset-vs-shift tables/plots |
+| 7 | `PilotPlotBuilder` | in_progress | `scripts/reporting/plot_report.py` | Build scalar and geometry plot pack for quick inspection. | scalar/gate summary JSON, geometry summary JSON | PNG plots, plot manifest |
+| 8 | `RoleFreeGridBuilder` | later | `scripts/prompts/build_role_free_trait_grids.py` | Build role-free grids for all non-warmth pilot traits. | trait configs, role-free scenario template/specs | role-free prompt JSONLs/manifests |
+| 9 | `RoleFreeRulerPipeline` | later | existing generation/activation/vector/ruler scripts | Build lower-circularity role-free rulers for all traits. | role-free prompt grids | role-free rulers and scalar comparisons |
+| 10 | `HeldoutTransferRunner` | later | `scripts/analysis/run_heldout_transfer.py` | Test primary-role rulers on mediator/strategist. | heldout prompts/activations/vectors, primary rulers | heldout scalar/gate summaries |
+| 11 | `ProbeComparisonRunner` | later | `scripts/analysis/run_probe_comparison.py` | Train/evaluate trait probes and compare probe directions to rulers. | raw activations, labels, splits | probe metrics, transfer matrix, direction cosines |
+| 12 | `ConstantSteeringRunner` | later | `scripts/analysis/run_constant_steering.py` | Apply trait rulers as interventions and measure behavior/quality changes. | model, ruler, prompts, alpha schedule | steered generations, steering manifest |
+| 13 | `SaturationAnalyzer` | later | `scripts/analysis/run_saturation.py` | Test whether high-offset roles have smaller elicitation/steering shifts. | scalar summaries, behavior summaries, steering outputs | offset-vs-shift tables/plots |
 
 ### Builders
 
@@ -206,6 +207,7 @@ flowchart TD
 | `MultiTraitSummaryBuilder` | in_progress | `scripts/reporting/summarize_traits.py` | scalar JSONs, salience gate JSONs | cross-trait JSON/CSV/Markdown summaries | scalar/gate outputs |
 | `ScalarBehaviorSummaryBuilder` | in_progress | `scripts/reporting/summarize_scalar_behavior.py` | scalar JSONs, salience gate JSONs, behavior metrics JSONs | scalar-behavior JSON/CSV/Markdown summaries | scalar/gate outputs, behavior metrics |
 | `ReportBuilder` | in_progress | `scripts/reporting/build_report.py` | scalar/gate summary, geometry summary, scalar-behavior summary | integrated Markdown/JSON report and manifest | validation/analysis outputs |
+| `PilotPlotBuilder` | in_progress | `scripts/reporting/plot_report.py` | scalar/gate summary, geometry summary | scalar shift heatmaps, axis-alignment heatmap, ruler cosine heatmap, role-pair cosine plot | scalar/gate + geometry summaries |
 | `RoleFreeGridBuilder` | todo | `scripts/prompts/build_role_free_trait_grids.py` | trait configs, role-free template/specs | role-free prompt JSONLs/manifests | role-free ruler comparison |
 
 ### Runners
@@ -253,6 +255,7 @@ flowchart TD
 | Scalar-behavior summary | in_progress | `ScalarBehaviorSummaryBuilder` | report builder, result interpretation | Script exists and passes synthetic fixture; run after real behavior metrics exist. |
 | Geometry summary | in_progress | `GeometryAnalyzer` | report builder, geometry interpretation | Script exists and compiles; local tensor execution blocked by broken local torch, so run on Vast/working torch. |
 | Reports | in_progress | `ReportBuilder` | user/paper notes | Integrated Markdown/JSON builder exists and passes synthetic fixture. |
+| Plot pack | in_progress | `PilotPlotBuilder` | report inspection | Plot builder exists; run after scalar/gate and geometry summaries. |
 
 ## Immediate TODO Checklist
 
@@ -342,11 +345,13 @@ flowchart TD
 - [x] Implement `ScalarBehaviorSummaryBuilder`.
 - [x] Implement `GeometryAnalyzer`.
 - [x] Implement integrated `ReportBuilder`.
+- [x] Implement `PilotPlotBuilder`.
 - [ ] Run trait judge dry-run on one trait.
 - [ ] Run first small judged pilot and inspect rows.
 - [ ] Build behavior metrics for first judged pilot.
 - [ ] Build scalar-behavior summary for first judged pilot.
 - [ ] Run `GeometryAnalyzer` on five-trait vector/ruler artifacts.
+- [ ] Build plot pack from scalar/gate and geometry summaries.
 - [ ] Build first smoke-run report.
 
 ## Open Decisions
