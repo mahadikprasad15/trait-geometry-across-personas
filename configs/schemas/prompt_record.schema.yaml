@@ -42,6 +42,7 @@ required_fields:
       - mention_without_possession
       - instruction_positive
       - instruction_negative
+      - instruction_neutral
       - other_positive
       - other_negative
       - other_neutral
@@ -91,6 +92,7 @@ condition_semantics:
   mention_without_possession: The trait is discussed as a topic, but no speaker exhibits it.
   instruction_positive: The role is explicitly instructed to express the positive pole.
   instruction_negative: The role is explicitly instructed to express the negative pole.
+  instruction_neutral: The role receives no explicit trait-pole instruction, but belongs to an explicit-instruction prompt family.
   other_positive: Another speaker expresses the positive pole; role is about to respond.
   other_negative: Another speaker expresses the negative pole; role is about to respond.
   other_neutral: Matched transcript where the other speaker is neutral.

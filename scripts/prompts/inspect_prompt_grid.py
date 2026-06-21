@@ -54,6 +54,9 @@ def grouped_sample(
         "present_negative": 1,
         "present_neutral": 2,
         "mention_without_possession": 3,
+        "instruction_positive": 0,
+        "instruction_negative": 1,
+        "instruction_neutral": 2,
     }
     return sorted(sample, key=lambda record: condition_order.get(record["condition"], 99))
 
@@ -88,7 +91,8 @@ def inspect_records(
             print(f"No records found for role={role!r}, scenario={scenario_id!r}, variant={variant!r}")
             continue
         print(f"Scenario: {sample[0]['scenario_id']}")
-        print(f"Topic: {sample[0]['source'].get('topic')}")
+        topic = sample[0]["source"].get("topic") or sample[0]["source"].get("question_category")
+        print(f"Topic: {topic}")
         print("-" * 88)
         for record in sample:
             print_record(record)
@@ -131,4 +135,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

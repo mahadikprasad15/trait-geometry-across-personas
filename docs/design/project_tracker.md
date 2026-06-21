@@ -21,6 +21,7 @@ Status labels:
 | Pilot config | done | `pilot_v0.yaml` exists and five-trait 1B primary-role pilot has run at layer 8. | Add behavior/geometry configs next. |
 | Prompt specs | done | Full 24-scenario specs exist for all five pilot traits. | Manual quality audit before treating findings as final. |
 | Prompt expansion | done | All five pilot trait grids expanded to 480 records each. | Add role-free/heldout grids later. |
+| Assistant Axis expansion | in_progress | `assistant_axis_6x6_v0` config and explicit-instruction prompt grids exist: 6 roles, 6 trait axes, 40 stratified questions, 2 role instruction variants, 8640 records total. | Run one trait smoke generation, then full 6x6 generation on Vast. |
 | Generation | done | Five full primary-role trait grids generated on Vast with Llama 3.2 1B Instruct. Runner supports resume, tqdm, and batched generation. | Reuse for heldout/role-free/model-scale variants. |
 | Activation cache | done | Five primary-role trait runs cached at layer 8. Runner supports resume, tqdm, and batched TransformerLens caching. | Reuse for later layers/roles if needed. |
 | Vectors/rulers | done | Five role-vector sets and primary-role rulers built; multi-trait ruler naming bug fixed with trait-axis metadata. | Add role-free and heldout-transfer comparisons. |
@@ -42,6 +43,18 @@ Status labels:
 | `caution_recklessness` | done | HEXACO Conscientiousness | Pilot expansion |
 | `curiosity_closed_mindedness` | done | HEXACO Openness | Pilot expansion |
 | `skepticism_gullibility` | done | Assistant Axis skeptic role plus future source research needed | Full 480-record grid generated for pilot expansion. |
+
+### Assistant Axis 6x6 Expansion
+
+| Selection | Values | Status |
+|---|---|---:|
+| Roles | `counselor`, `doctor`, `tutor`, `debugger`, `journalist`, `strategist` | done |
+| Trait axes | `empathy_detachment`, `diplomacy_bluntness`, `skeptical_naive`, `cautious_adventurous`, `assertive_deferential`, `calm_anxious` | done |
+| Question set | 40 Assistant Axis extraction questions, stratified across 8 categories | done |
+| Role instruction variants | first 2 Assistant Axis variants per role | done |
+| Conditions | `instruction_positive`, `instruction_negative`, `instruction_neutral` | done |
+| Prompt count | 8640 total; 1440 per trait | done |
+| Main config | `configs/experiments/assistant_axis_6x6_v0.yaml` | done |
 
 ### Role Sets
 
@@ -74,6 +87,9 @@ flowchart TD
   B["configs/traits/*.yaml"] --> E
   C["configs/schemas/prompt_record.schema.yaml"] --> E
   D["data/prompt_specs/warmth_coldness_smoke_v001.yaml"] --> E
+  AA["configs/experiments/assistant_axis_6x6_v0.yaml"] --> AB["AssistantAxisGridBuilder"]
+  A --> AB
+  AB --> F
   E --> F["data/prompts/*.jsonl"]
   E --> G["data/prompts/*_manifest.json"]
   F --> H["GenerationRunner"]
@@ -145,6 +161,7 @@ flowchart TD
 | `configs/traits/skepticism_gullibility.yaml` | done | Skepticism/gullibility axis config with lexical leakage terms and source-research TODO. | Pilot expansion later |
 | `configs/schemas/prompt_record.schema.yaml` | done | Expanded prompt-record schema. | `PromptGridBuilder`, validation |
 | `configs/experiments/pilot_v0.yaml` | done | Pilot experiment wiring and artifact policy. | All first-stage builders/runners |
+| `configs/experiments/assistant_axis_6x6_v0.yaml` | done | Assistant Axis expansion config: roles, trait pairs, explicit-instruction conditions, and 40 selected questions. | `AssistantAxisGridBuilder` |
 | `configs/models/llama_3_2_1b_instruct.yaml` | done | First smoke-run model config and tooling defaults, including generation batch size 8. | `GenerationRunner`, `ActivationCacheBuilder` later |
 | `configs/models/judge_openai_gpt_4_1_mini.yaml` | done | OpenAI judge model config with deterministic structured-output defaults. | `TraitJudgeRunner` |
 | `configs/judges/trait_behavior_rubric_v001.yaml` | done | Generic behavior scoring rubric filled with trait-specific pole definitions. | `TraitJudgeRunner`, behavior metrics later |
@@ -173,6 +190,8 @@ flowchart TD
 | `data/prompts/skepticism_gullibility_smoke_v001_manifest.json` | done | Prompt-grid manifest for skepticism/gullibility. | Rebuild if source spec changes. |
 | `data/prompts/warmth_coldness_role_free_v001.jsonl` | done | Generic role-free prompt grid; 24 records. | Run generation/activation separately for role-free ruler. |
 | `data/prompts/warmth_coldness_role_free_v001_manifest.json` | done | Role-free prompt-grid manifest; validation passed. | Rebuild if role-free spec changes. |
+| `data/prompts/assistant_axis_6x6_v001/*.jsonl` | done | Assistant Axis explicit-instruction prompt grids; 6 per-trait JSONLs, 1440 records each, 8640 total. | Run one-trait smoke generation, then full 6x6 generation. |
+| `data/prompts/assistant_axis_6x6_v001/*_manifest.json` | done | Per-trait and aggregate manifests with source URLs, counts, hashes, and validation. | Rebuild if selected questions/traits/roles change. |
 
 ## Component Board
 
@@ -188,17 +207,19 @@ flowchart TD
 | 6 | `ReportBuilder` | in_progress | `scripts/reporting/build_report.py` | Combine scalar/gate, geometry, and scalar-behavior summaries into one report. | summary JSONs | integrated Markdown/JSON report |
 | 7 | `PilotPlotBuilder` | in_progress | `scripts/reporting/plot_report.py` | Build scalar and geometry plot pack for quick inspection. | scalar/gate summary JSON, geometry summary JSON | PNG plots, plot manifest |
 | 8 | `RoleFreeGridBuilder` | later | `scripts/prompts/build_role_free_trait_grids.py` | Build role-free grids for all non-warmth pilot traits. | trait configs, role-free scenario template/specs | role-free prompt JSONLs/manifests |
-| 9 | `RoleFreeRulerPipeline` | later | existing generation/activation/vector/ruler scripts | Build lower-circularity role-free rulers for all traits. | role-free prompt grids | role-free rulers and scalar comparisons |
-| 10 | `HeldoutTransferRunner` | later | `scripts/analysis/run_heldout_transfer.py` | Test primary-role rulers on mediator/strategist. | heldout prompts/activations/vectors, primary rulers | heldout scalar/gate summaries |
-| 11 | `ProbeComparisonRunner` | later | `scripts/analysis/run_probe_comparison.py` | Train/evaluate trait probes and compare probe directions to rulers. | raw activations, labels, splits | probe metrics, transfer matrix, direction cosines |
-| 12 | `ConstantSteeringRunner` | later | `scripts/analysis/run_constant_steering.py` | Apply trait rulers as interventions and measure behavior/quality changes. | model, ruler, prompts, alpha schedule | steered generations, steering manifest |
-| 13 | `SaturationAnalyzer` | later | `scripts/analysis/run_saturation.py` | Test whether high-offset roles have smaller elicitation/steering shifts. | scalar summaries, behavior summaries, steering outputs | offset-vs-shift tables/plots |
+| 9 | `AssistantAxisGridBuilder` | done | `scripts/prompts/build_assistant_axis_grid.py` | Build explicit trait-instruction grids from Assistant Axis roles, traits, and questions. | assistant-axis expansion config, role config | per-trait prompt JSONLs/manifests |
+| 10 | `RoleFreeRulerPipeline` | later | existing generation/activation/vector/ruler scripts | Build lower-circularity role-free rulers for all traits. | role-free prompt grids | role-free rulers and scalar comparisons |
+| 11 | `HeldoutTransferRunner` | later | `scripts/analysis/run_heldout_transfer.py` | Test primary-role rulers on mediator/strategist. | heldout prompts/activations/vectors, primary rulers | heldout scalar/gate summaries |
+| 12 | `ProbeComparisonRunner` | later | `scripts/analysis/run_probe_comparison.py` | Train/evaluate trait probes and compare probe directions to rulers. | raw activations, labels, splits | probe metrics, transfer matrix, direction cosines |
+| 13 | `ConstantSteeringRunner` | later | `scripts/analysis/run_constant_steering.py` | Apply trait rulers as interventions and measure behavior/quality changes. | model, ruler, prompts, alpha schedule | steered generations, steering manifest |
+| 14 | `SaturationAnalyzer` | later | `scripts/analysis/run_saturation.py` | Test whether high-offset roles have smaller elicitation/steering shifts. | scalar summaries, behavior summaries, steering outputs | offset-vs-shift tables/plots |
 
 ### Builders
 
 | Component | Status | Script | Inputs | Outputs | Depends on |
 |---|---:|---|---|---|---|
 | `PromptGridBuilder` | done | `scripts/prompts/build_prompt_grid.py` | role config, trait config, prompt schema, scenario spec | expanded JSONL, manifest | current configs/spec |
+| `AssistantAxisGridBuilder` | done | `scripts/prompts/build_assistant_axis_grid.py` | Assistant Axis expansion config, role config | per-trait explicit-instruction JSONLs, manifests | selected roles/traits/questions |
 | `BalancedPromptGridSampler` | done | `scripts/prompts/sample_balanced_grid.py` | expanded JSONL, roles, conditions, variant | balanced JSONL, manifest | expanded prompt grid |
 | `ActivationCacheBuilder` | done | `scripts/activations/cache_activations.py` | generations JSONL, model config, layer policy, optional `--batch-size` | activation artifacts and index | generation output, model config |
 | `VectorBuilder` | done | `scripts/analysis/build_vectors.py` | activation index, activation `.pt` artifacts | condition means including mention controls, role vectors, vector manifest | activation cache |
@@ -240,6 +261,7 @@ flowchart TD
 | Artifact | Status | Producer | Consumer | Notes |
 |---|---:|---|---|---|
 | Expanded prompt JSONL | done | `PromptGridBuilder` | generation, activation caching | `data/prompts/warmth_coldness_smoke_v001.jsonl`, 480 records. |
+| Assistant Axis prompt JSONLs | done | `AssistantAxisGridBuilder` | generation, activation caching | `data/prompts/assistant_axis_6x6_v001/*_assistant_axis_6x6_v001.jsonl`, 1440 records per trait. |
 | Prompt-grid manifest | done | `PromptGridBuilder` | audit, reports | `data/prompts/warmth_coldness_smoke_v001_manifest.json`, validation passed. |
 | Run manifest | done | all runners | all downstream stages | Five-trait Vast run manifests exist and are synced to HF. |
 | Status/progress files | done | all runners | resume logic | Five-trait Vast status/progress files exist and are synced to HF. |
@@ -286,6 +308,8 @@ flowchart TD
 - [x] Add validation report.
 - [x] Add balanced smoke-grid sampler.
 - [x] Generate 16-record balanced warmth/coldness smoke grid.
+- [x] Add `AssistantAxisGridBuilder` for explicit trait-instruction grids.
+- [x] Generate Assistant Axis 6x6 v001 prompt grids.
 
 ### Prompt Validation
 
@@ -295,6 +319,7 @@ flowchart TD
 - [x] Check matched neutral links resolve.
 - [x] Check mention controls are counted separately from construction conditions.
 - [x] Check scenario-induced prompts avoid exact pole labels.
+- [x] Add condition-family canonicalization so `instruction_*` grids feed existing vector/scalar analysis.
 - [x] Add explicit lexical leakage terms for `warm`, `warmth`, `cold`, `coldness`.
 - [x] Add prompt-grid sample inspection script.
 - [ ] Inspect additional samples beyond the first scenario per role.
@@ -353,6 +378,8 @@ flowchart TD
 - [ ] Run `GeometryAnalyzer` on five-trait vector/ruler artifacts.
 - [ ] Build plot pack from scalar/gate and geometry summaries.
 - [ ] Build first smoke-run report.
+- [ ] Run one Assistant Axis trait through generation, activation, vectors, ruler, scalars, and gate.
+- [ ] Run full Assistant Axis 6x6 generation on Vast if the one-trait smoke looks sane.
 
 ## Open Decisions
 
@@ -364,6 +391,7 @@ flowchart TD
 | Activation tooling | locked for pilot v0 | TransformerLens | Verified on Vast for Llama 3.2 1B layer-8 activation caching. |
 | First layer policy | locked for pilot v0 | layer 8 with response-token mean | Single middle-layer pilot completed. |
 | Judge model/rubric | locked for pilot v0 | generic rubric plus `gpt-4.1-mini` judge config | May need trait-specific refinement after first judged pilot. |
+| Assistant Axis expansion conditions | locked for next run | explicit `instruction_positive`, `instruction_negative`, `instruction_neutral` with vector-stage canonicalization | Stronger lexical signal; use as expansion pilot, not final scenario-induced evidence. |
 | Coldness prompt quality | open | workflow constraint induction | May capture brevity/register rather than coldness. |
 | HF dataset repo name | locked | `Prasadmahadik/trait-geometry-across-personas` | Case-sensitive HF dataset repo used for successful sync. |
 

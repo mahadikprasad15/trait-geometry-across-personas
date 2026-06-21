@@ -8,7 +8,19 @@ from pathlib import Path
 from typing import Any
 
 
-REQUIRED_CONDITIONS = ("present_positive", "present_negative", "present_neutral")
+CANONICAL_REQUIRED_CONDITIONS = ("present_positive", "present_negative", "present_neutral")
+CONDITION_FAMILIES = {
+    "present": {
+        "present_positive": "present_positive",
+        "present_negative": "present_negative",
+        "present_neutral": "present_neutral",
+    },
+    "instruction": {
+        "instruction_positive": "present_positive",
+        "instruction_negative": "present_negative",
+        "instruction_neutral": "present_neutral",
+    },
+}
 
 
 def load_jsonl(path: Path, limit: int | None = None) -> list[dict[str, Any]]:
@@ -62,21 +74,63 @@ def summarize_index(index_records: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def validate_condition_coverage(index_records: list[dict[str, Any]]) -> dict[str, Any]:
+def resolve_condition_mapping(
+    index_records: list[dict[str, Any]],
+    condition_family: str,
+) -> dict[str, str]:
+    if condition_family != "auto":
+        if condition_family not in CONDITION_FAMILIES:
+            raise ValueError(
+                f"unsupported condition family {condition_family!r}; "
+                f"use one of {['auto', *CONDITION_FAMILIES]}"
+            )
+        return CONDITION_FAMILIES[condition_family]
+
+    observed = {str(record["condition"]) for record in index_records}
+    matched = [
+        family
+        for family, mapping in CONDITION_FAMILIES.items()
+        if set(mapping).issubset(observed)
+    ]
+    if len(matched) == 1:
+        return CONDITION_FAMILIES[matched[0]]
+    if len(matched) > 1:
+        raise ValueError(
+            f"ambiguous condition family; observed conditions match multiple families: {matched}"
+        )
+    raise ValueError(
+        "could not infer condition family from activation index; "
+        f"observed={sorted(observed)}"
+    )
+
+
+def canonical_condition(condition: str, condition_mapping: dict[str, str]) -> str:
+    return condition_mapping.get(condition, condition)
+
+
+def validate_condition_coverage(
+    index_records: list[dict[str, Any]],
+    condition_mapping: dict[str, str],
+) -> dict[str, Any]:
     by_role: dict[str, set[str]] = defaultdict(set)
     for record in index_records:
         condition = str(record["condition"])
         if condition == "mention_without_possession":
             continue
-        by_role[str(record["role_id"])].add(condition)
+        by_role[str(record["role_id"])].add(canonical_condition(condition, condition_mapping))
 
     missing: dict[str, list[str]] = {}
     for role_id, conditions in by_role.items():
-        absent = [condition for condition in REQUIRED_CONDITIONS if condition not in conditions]
+        absent = [
+            condition
+            for condition in CANONICAL_REQUIRED_CONDITIONS
+            if condition not in conditions
+        ]
         if absent:
             missing[role_id] = absent
     return {
-        "required_conditions": list(REQUIRED_CONDITIONS),
+        "required_conditions": list(CANONICAL_REQUIRED_CONDITIONS),
+        "condition_mapping": condition_mapping,
         "missing_by_role": missing,
         "passed": not missing,
     }
@@ -116,7 +170,11 @@ def load_activation_vector(activation_path: Path, layer: int):
     raise ValueError(f"layer {layer} missing from {activation_path}")
 
 
-def compute_vectors(index_records: list[dict[str, Any]], layers: list[int]) -> dict[str, Any]:
+def compute_vectors(
+    index_records: list[dict[str, Any]],
+    layers: list[int],
+    condition_mapping: dict[str, str],
+) -> dict[str, Any]:
     grouped: dict[int, dict[str, dict[str, list[Any]]]] = {
         layer: defaultdict(lambda: defaultdict(list)) for layer in layers
     }
@@ -125,7 +183,7 @@ def compute_vectors(index_records: list[dict[str, Any]], layers: list[int]) -> d
     }
 
     for record in index_records:
-        condition = str(record["condition"])
+        condition = canonical_condition(str(record["condition"]), condition_mapping)
         role_id = str(record["role_id"])
         activation_path = Path(record["activation_path"])
         for layer in layers:
@@ -141,7 +199,11 @@ def compute_vectors(index_records: list[dict[str, Any]], layers: list[int]) -> d
         role_condition_means[layer] = {}
         neutral_means = []
         for role_id, condition_map in grouped[layer].items():
-            missing = [condition for condition in REQUIRED_CONDITIONS if condition not in condition_map]
+            missing = [
+                condition
+                for condition in CANONICAL_REQUIRED_CONDITIONS
+                if condition not in condition_map
+            ]
             if missing:
                 raise ValueError(f"role {role_id} layer {layer} missing conditions {missing}")
             role_condition_means[layer][role_id] = {
@@ -168,6 +230,7 @@ def compute_vectors(index_records: list[dict[str, Any]], layers: list[int]) -> d
         "role_trait_vectors": role_trait_vectors,
         "global_neutral_means": global_neutral_means,
         "counts": counts,
+        "condition_mapping": condition_mapping,
     }
 
 
@@ -212,6 +275,7 @@ def write_vector_artifacts(
         {
             "trait_axis_id": trait_axis_id,
             "layers": layers,
+            "condition_mapping": vector_payload["condition_mapping"],
             "role_condition_means": vector_payload["role_condition_means"],
             "global_neutral_means": vector_payload["global_neutral_means"],
         },
@@ -222,6 +286,7 @@ def write_vector_artifacts(
         {
             "trait_axis_id": trait_axis_id,
             "layers": layers,
+            "condition_mapping": vector_payload["condition_mapping"],
             "role_trait_vectors": vector_payload["role_trait_vectors"],
             "counts": plain_counts,
         },
@@ -275,6 +340,15 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--layers", type=int, nargs="+", default=[8])
     parser.add_argument("--trait-axis-id", default=None)
+    parser.add_argument(
+        "--condition-family",
+        default="auto",
+        choices=["auto", *CONDITION_FAMILIES.keys()],
+        help=(
+            "Condition naming family to canonicalize into positive/negative/neutral vectors. "
+            "Use 'instruction' for explicit trait-instruction grids."
+        ),
+    )
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--dry-run", action="store_true")
     return parser
@@ -284,7 +358,8 @@ def main() -> int:
     args = build_arg_parser().parse_args()
     index_records = load_jsonl(args.activation_index, limit=args.limit)
     summary = summarize_index(index_records)
-    coverage = validate_condition_coverage(index_records)
+    condition_mapping = resolve_condition_mapping(index_records, args.condition_family)
+    coverage = validate_condition_coverage(index_records, condition_mapping)
     trait_axis_id = resolve_trait_axis_id(index_records, args.trait_axis_id)
     dependency_status = check_torch_dependency()
 
@@ -336,7 +411,7 @@ def main() -> int:
         print(json.dumps({"error": "condition coverage failed", "coverage": coverage}, indent=2))
         return 2
 
-    vector_payload = compute_vectors(index_records, args.layers)
+    vector_payload = compute_vectors(index_records, args.layers, condition_mapping)
     artifacts = write_vector_artifacts(
         output_dir=args.output_dir,
         activation_index=args.activation_index,

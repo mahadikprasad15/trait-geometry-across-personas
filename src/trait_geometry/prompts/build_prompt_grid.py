@@ -19,6 +19,7 @@ CONDITION_POLARITY = {
     "mention_without_possession": None,
     "instruction_positive": "positive",
     "instruction_negative": "negative",
+    "instruction_neutral": "neutral",
     "other_positive": "positive",
     "other_negative": "negative",
     "other_neutral": "neutral",
@@ -232,10 +233,15 @@ def build_prompt_records(
                         trait_axis_id,
                         role_id,
                         scenario_id,
-                        "present_positive",
+                        "present_positive"
+                        if "present_positive" in prompt_spec["expansion"]["conditions"]
+                        else "instruction_positive",
                         instruction_variant_id,
                     )
-                    if "present_positive" in prompt_spec["expansion"]["conditions"]
+                    if (
+                        "present_positive" in prompt_spec["expansion"]["conditions"]
+                        or "instruction_positive" in prompt_spec["expansion"]["conditions"]
+                    )
                     else None
                 )
                 negative_id = (
@@ -243,10 +249,15 @@ def build_prompt_records(
                         trait_axis_id,
                         role_id,
                         scenario_id,
-                        "present_negative",
+                        "present_negative"
+                        if "present_negative" in prompt_spec["expansion"]["conditions"]
+                        else "instruction_negative",
                         instruction_variant_id,
                     )
-                    if "present_negative" in prompt_spec["expansion"]["conditions"]
+                    if (
+                        "present_negative" in prompt_spec["expansion"]["conditions"]
+                        or "instruction_negative" in prompt_spec["expansion"]["conditions"]
+                    )
                     else None
                 )
                 neutral_id = (
@@ -254,10 +265,15 @@ def build_prompt_records(
                         trait_axis_id,
                         role_id,
                         scenario_id,
-                        "present_neutral",
+                        "present_neutral"
+                        if "present_neutral" in prompt_spec["expansion"]["conditions"]
+                        else "instruction_neutral",
                         instruction_variant_id,
                     )
-                    if "present_neutral" in prompt_spec["expansion"]["conditions"]
+                    if (
+                        "present_neutral" in prompt_spec["expansion"]["conditions"]
+                        or "instruction_neutral" in prompt_spec["expansion"]["conditions"]
+                    )
                     else None
                 )
 
@@ -281,6 +297,8 @@ def build_prompt_records(
                     if condition in {
                         "present_positive",
                         "present_negative",
+                        "instruction_positive",
+                        "instruction_negative",
                         "other_positive",
                         "other_negative",
                     }:
@@ -288,8 +306,12 @@ def build_prompt_records(
                     else:
                         matched_neutral_id = None
 
-                    matched_positive_id = positive_id if condition == "present_neutral" else None
-                    matched_negative_id = negative_id if condition == "present_neutral" else None
+                    matched_positive_id = (
+                        positive_id if condition in {"present_neutral", "instruction_neutral"} else None
+                    )
+                    matched_negative_id = (
+                        negative_id if condition in {"present_neutral", "instruction_neutral"} else None
+                    )
 
                     records.append(
                         PromptRecord(

@@ -1,0 +1,37 @@
+{
+  "builder": "AssistantAxisGridBuilder",
+  "counts": {
+    "conditions": {
+      "instruction_negative": 480,
+      "instruction_neutral": 480,
+      "instruction_positive": 480
+    },
+    "records": 1440,
+    "role_instruction_variant_id": {
+      "iv01": 720,
+      "iv02": 720
+    },
+    "roles": {
+      "counselor": 240,
+      "debugger": 240,
+      "doctor": 240,
+      "journalist": 240,
+      "strategist": 240,
+      "tutor": 240
+    }
+  },
+  "created_at_utc": "2026-06-18T09:41:43.859734+00:00",
+  "output_jsonl": "data/prompts/assistant_axis_6x6_v001/assertive_deferential_assistant_axis_6x6_v001.jsonl",
+  "output_jsonl_sha256": "cce88b457457caea14cdd595b02ffa13c3288bece6e1c12cdabb64c781e5d712",
+  "output_manifest": "data/prompts/assistant_axis_6x6_v001/assertive_deferential_assistant_axis_6x6_v001_manifest.json",
+  "schema_version": "0.1",
+  "trait_axis_id": "assertive_deferential",
+  "validation": {
+    "duplicate_prompt_ids": [],
+    "expected_count": 1440,
+    "missing_matched_links": [],
+    "passed": true,
+    "question_trait_word_leaks": [],
+    "record_count": 1440
+  }
+}

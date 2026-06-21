@@ -517,6 +517,78 @@ For activation caching:
 - Extra check: the activation `.pt` path must exist before a prompt counts as
   complete.
 
+## 2026-06-18 - Assistant Axis Expansion and Condition Families
+
+Concept:
+
+The next experiment adds an explicit trait-instruction prompt family using
+Assistant Axis role instructions, trait definitions, and extraction questions.
+This creates a new upstream builder while reusing the existing generation,
+activation, vector, ruler, scalar, geometry, and reporting stack.
+
+Where it appears in this repo:
+
+- `configs/experiments/assistant_axis_6x6_v0.yaml`
+- `scripts/prompts/build_assistant_axis_grid.py`
+- `src/trait_geometry/prompts/build_assistant_axis_grid.py`
+- `src/trait_geometry/vectors/build_vectors.py`
+- `data/prompts/assistant_axis_6x6_v001/`
+
+Why it matters:
+
+The first pilot used scenario-induced conditions such as `present_positive`.
+The Assistant Axis expansion uses explicit instructions such as
+`instruction_positive`. Treating those as identical in the raw prompt records
+would hide an important experimental distinction. Instead, the prompt records
+preserve the honest condition names, and the vector builder canonicalizes them
+only when computing the same mathematical objects.
+
+Reusable pattern:
+
+```text
+raw experimental condition family
+  -> preserve exact labels in prompt/generation artifacts
+  -> map to canonical analysis roles at the vector boundary
+  -> store the mapping in vector artifacts
+```
+
+For this project:
+
+```text
+instruction_positive -> present_positive
+instruction_negative -> present_negative
+instruction_neutral  -> present_neutral
+```
+
+Implementation notes:
+
+- `AssistantAxisGridBuilder` writes one JSONL per trait axis. This keeps the
+  existing per-trait runner commands and artifact layout unchanged.
+- The 6x6 config pins selected trait definitions and selected question texts
+  locally, while recording Assistant Axis source URLs in manifests.
+- Each trait grid has `6 roles x 2 role instruction variants x 40 questions x
+  3 conditions = 1440` prompt records.
+- The full expansion has `6 traits x 1440 = 8640` prompt records.
+- Neutral prompts avoid naming the trait poles, even though positive and
+  negative explicit-instruction prompts necessarily contain trait words.
+
+Common failure modes:
+
+- Accidentally putting trait names in the neutral condition contaminates the
+  neutral baseline. Fix: use a generic neutral instruction such as "respond
+  naturally and professionally without adding a special personality style."
+- Calling an explicit-instruction prompt `present_positive` makes later result
+  interpretation sloppy. Fix: use `instruction_positive` in artifacts and
+  canonicalize only for vector math.
+- Combining all traits into one prompt JSONL would require multi-trait vector
+  grouping changes. Fix for this stage: emit one JSONL per trait.
+
+Related previous pattern:
+
+This extends the original `PromptGridBuilder` pattern from scenario-authored
+grids to source-backed, config-pinned expansion grids while preserving the same
+artifact-first lifecycle.
+
 This avoids duplicate work after interruptions and keeps partial Vast runs
 recoverable.
 
