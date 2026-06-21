@@ -326,6 +326,9 @@ def generate_one(
         "pad_token_id": tokenizer.pad_token_id,
         "eos_token_id": tokenizer.eos_token_id,
     }
+    min_new_tokens = int(generation_config.get("min_new_tokens", 0) or 0)
+    if min_new_tokens > 0:
+        generate_kwargs["min_new_tokens"] = min_new_tokens
     if do_sample:
         generate_kwargs["temperature"] = temperature
 
@@ -369,6 +372,9 @@ def generate_batch(
         "pad_token_id": tokenizer.pad_token_id,
         "eos_token_id": tokenizer.eos_token_id,
     }
+    min_new_tokens = int(generation_config.get("min_new_tokens", 0) or 0)
+    if min_new_tokens > 0:
+        generate_kwargs["min_new_tokens"] = min_new_tokens
     if do_sample:
         generate_kwargs["temperature"] = temperature
 

@@ -30,6 +30,7 @@ generation:
   preferred_backend: transformers
   fallback_backend: none
   max_new_tokens: 192
+  min_new_tokens: 8
   temperature: 0.0
   do_sample: false
   batch_size: 8
